@@ -25,7 +25,7 @@ int sc_memorySet(int address, int value) {
   if (address < SIZE && address >= 0) {
     RAM[address] = value;
   } else {
-    REGISTER = 1;
+    sc_regSet(AF, 1);
     printf("Выход за границы памяти!\n");
     return -1;
   }
@@ -37,7 +37,7 @@ int sc_memoryGet(int address, int* value) {
   if (address < SIZE && address >= 0) {
     *value = RAM[address];
   } else {
-    REGISTER = 1;
+    sc_regSet(AF, 1);
     printf("Выход за границы памяти!\n");
     return -1;
   }
@@ -84,5 +84,37 @@ int sc_memoryLoad(char* filename) {
   for (int i = 0; i < SIZE; ++i) fread(&RAM[i], sizeof(int), 1, fp);
 
   fclose(fp);
+  return 0;
+}
+
+int sc_regInit(void) {
+  REGISTER = 0;
+  return 0;
+}
+
+int sc_regSet(int Register, int value) {
+  if ((CHECK_FLAG) && (value == 0 || value == 1)) {
+    if (value) {
+      REGISTER = REGISTER | (1 << (Register - 1));
+    } else {
+      REGISTER = REGISTER & (~(1 << (Register - 1)));
+    }
+  } else {
+    printf("Некорректные данные!\n");
+    return -1;
+  }
+
+  return 0;
+}
+
+int sc_regGet(int Register, int* value) {
+  if (CHECK_FLAG) {
+    *value = (REGISTER >> (Register - 1)) & 0x1;
+  } else {
+    sc_regSet(AF, 1);
+    printf("Выход за границы памяти!\n");
+    return -1;
+  }
+
   return 0;
 }
