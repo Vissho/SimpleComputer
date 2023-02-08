@@ -42,5 +42,23 @@ int main() {
   sc_regGet(9, &temp);
   printf("sc_regGet check 2: %d\n", temp);
 
+  int n = 0;
+  printf("sc_commandEncode check 1:");
+  sc_commandEncode(33, 59, &n);
+  print_bites(n);
+  printf("%d\n", n);
+  printf("sc_commandEncode check 2:");
+  sc_commandEncode(2, 59, &n);
+  print_bites(n);
+  printf("%d\n", n);
+
+  int com = 0, oper = 0;
+  printf("sc_commandDecode check 1:");
+  sc_commandDecode(n, &com, &oper);
+  printf("%d %d\n", com, oper);
+  printf("sc_commandDecode check 2:");
+  sc_commandDecode(__INT_MAX__, &com, &oper);
+  printf("%d %d\n", com, oper);
+
   return 0;
 }

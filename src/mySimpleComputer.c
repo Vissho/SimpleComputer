@@ -118,3 +118,27 @@ int sc_regGet(int Register, int* value) {
 
   return 0;
 }
+
+int sc_commandEncode(int command, int operand, int* value) {
+  if ((CHECK_COMMAND) && operand >= 0 && operand < 128) {
+    *value = 0 | (command << 7) | operand;
+  } else {
+    printf("Некорректные данные!\n");
+    return -1;
+  }
+
+  return 0;
+}
+
+int sc_commandDecode(int value, int* command, int* operand) {
+  if (CHECK_VALUE) {
+    *command = 0 | (value >> 7);
+    *operand = 0 | (value & 127);
+  } else {
+    sc_regSet(SF, 1);
+    printf("Ошибочная команда!\n");
+    return -1;
+  }
+
+  return 0;
+}
