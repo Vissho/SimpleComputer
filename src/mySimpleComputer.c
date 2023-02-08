@@ -44,3 +44,45 @@ int sc_memoryGet(int address, int* value) {
 
   return 0;
 }
+
+int sc_memorySave(char* filename) {
+  if (!filename) {
+    printf("Нет названия файла!\n");
+    return -1;
+  }
+
+  FILE* fp;
+  fp = fopen(filename, "wb");
+
+  if (!fp) {
+    printf("Программа не нашла файл!\n");
+    fclose(fp);
+    return -1;
+  }
+
+  for (int i = 0; i < SIZE; ++i) fwrite(&RAM[i], sizeof(int), 1, fp);
+
+  fclose(fp);
+  return 0;
+}
+
+int sc_memoryLoad(char* filename) {
+  if (!filename) {
+    printf("Нет названия файла!\n");
+    return -1;
+  }
+
+  FILE* fp;
+  fp = fopen(filename, "rb");
+
+  if (!fp) {
+    printf("Программа не нашла файл!\n");
+    fclose(fp);
+    return -1;
+  }
+
+  for (int i = 0; i < SIZE; ++i) fread(&RAM[i], sizeof(int), 1, fp);
+
+  fclose(fp);
+  return 0;
+}

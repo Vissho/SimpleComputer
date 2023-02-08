@@ -54,6 +54,8 @@ dkms.conf
 # VS Code
 .vscode/
 
+*.bin
+
 main
 a.out
 mySimpleComputer
