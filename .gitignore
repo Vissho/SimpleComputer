@@ -59,6 +59,4 @@ dkms.conf
 main
 a.out
 mySimpleComputer
-test1
-test2
-test3
+mySimpleComputer_test

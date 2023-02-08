@@ -11,7 +11,7 @@ int print_bites(int key) {
 
 int sc_memoryInit(void) {
   for (int i = 0; i < SIZE; ++i) {
-    RAM[i] = 0;
+    sc_memorySet(i, 0);
     if (RAM[i] != 0) {
       printf("Массив не инициализирован!\n");
       return -1;
