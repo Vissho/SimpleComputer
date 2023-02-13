@@ -23,9 +23,6 @@
       ((value >> 7) > 39 && (value >> 7) < 44) ||                       \
       ((value >> 7) > 50 && (value >> 7) < 77)
 
-int RAM[SIZE];
-int REGISTER;
-
 int sc_memoryInit(void);
 int sc_memorySet(int address, int value);
 int sc_memoryGet(int address, int* value);

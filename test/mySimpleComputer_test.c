@@ -2,13 +2,16 @@
 #include <mySimpleComputer.h>
 #include <stdio.h>
 
+extern int RAM;
+extern int REGISTER;
+
 CTEST(initialization_of_memory_and_register,
       correctly_initialization_of_memory_and_register) {
   sc_memoryInit();
   sc_regInit();
 
   ASSERT_NOT_NULL(&REGISTER);
-  ASSERT_NOT_NULL(RAM);
+  ASSERT_NOT_NULL(&RAM);
 }
 
 CTEST(memory_set_and_get, correctly_memory_set_and_get) {

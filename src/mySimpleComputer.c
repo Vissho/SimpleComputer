@@ -1,5 +1,8 @@
 #include <mySimpleComputer.h>
 
+int RAM[SIZE];
+int REGISTER;
+
 int print_bites(int key) {
   for (int i = 31; i > 0; --i) {
     printf("%d", (key >> (i - 1)) & 0x1);
