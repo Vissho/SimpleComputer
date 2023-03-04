@@ -70,5 +70,14 @@ int main() {
   printf("Получен размер экрана.\n");
   printf("Число строк – %d\nЧисло столбцов – %d\n", row, col);
 
+  mt_setfgcolor(cl_red);
+  printf("1111\n");
+
+  mt_setbgcolor(cl_black);
+  printf("1111\n");
+
+  mt_setfgcolor(cl_default);
+  mt_setbgcolor(cl_default);
+
   return 0;
 }

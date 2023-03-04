@@ -48,5 +48,42 @@ int mt_getscreensize(int *rows, int *cols) {
   return 0;
 }
 
-int mt_setfgcolor(enum colors cl);
-int mt_setbgcolor(enum colors cl);
+int mt_setfgcolor(enum colors cl) {
+  int fd = open("/dev/tty", O_WRONLY);
+  if (fd == -1) {
+    printf("Ошибка открытия терминала.\n");
+    return -1;
+  }
+
+  char str[N];
+  int size = 0;
+
+  sprintf(str, "\E[3%dm", cl);
+  for (; str[size] != '\0'; size++)
+    ;
+
+  write(fd, str, size);
+
+  close(fd);
+  return 0;
+}
+
+int mt_setbgcolor(enum colors cl) {
+  int fd = open("/dev/tty", O_WRONLY);
+  if (fd == -1) {
+    printf("Ошибка открытия терминала.\n");
+    return -1;
+  }
+
+  char str[N];
+  int size = 0;
+
+  sprintf(str, "\E[4%dm", cl);
+  for (; str[size] != '\0'; size++)
+    ;
+
+  write(fd, str, size);
+
+  close(fd);
+  return 0;
+}
