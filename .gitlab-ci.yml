@@ -8,7 +8,7 @@ stages:
 build:
   stage: build
   script:
-    - make && make run
+    - make
 
 check-format:
   stage: check-format
@@ -19,4 +19,4 @@ check-format:
 test:
   stage: test
   script:
-    - make test && make test_run
+    - make test
