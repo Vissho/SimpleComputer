@@ -19,9 +19,12 @@ myTerm.a: src/myTerm.c
 	ar r myTerm.a myTerm.o
 
 .PHONY: test
-test: mySimpleComputer_test
+test: mySimpleComputer_test myTerm_test
 
 mySimpleComputer_test: test/main.c test/mySimpleComputer_test.c mySimpleComputer.a
+	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
+
+myTerm_test: test/main.c test/myTerm_test.c myTerm.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
 .PHONY: clean
@@ -33,15 +36,20 @@ clean:
 	find . -type f -name "*.d" -exec rm -f {} \;
 	rm -rf mySimpleComputer
 	rm -rf mySimpleComputer_test
+	rm -rf myTerm_test
 
 rebuild: clean all
 
 run:
 	./mySimpleComputer
 
-test_run:
+test_run1:
 	./mySimpleComputer_test
+
+test_run2:
+	./myTerm_test
 
 memory_check:
 	valgrind --leak-check=full ./mySimpleComputer
 	valgrind --leak-check=full ./mySimpleComputer_test
+	valgrind --leak-check=full ./myTerm_test
