@@ -1,4 +1,5 @@
 #include <mySimpleComputer.h>
+#include <myTerm.h>
 
 int main() {
   sc_memoryInit();
@@ -59,6 +60,15 @@ int main() {
   printf("sc_commandDecode check 2:");
   sc_commandDecode(__INT_MAX__, &com, &oper);
   printf("%d %d\n", com, oper);
+
+  mt_clrscr();
+  mt_gotoXY(10, 100);
+  printf("1\n");
+
+  int row = 0, col = 0;
+  mt_getscreensize(&row, &col);
+  printf("Получен размер экрана.\n");
+  printf("Число строк – %d\nЧисло столбцов – %d\n", row, col);
 
   return 0;
 }
