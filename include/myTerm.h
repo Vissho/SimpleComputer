@@ -6,8 +6,10 @@
 #include <unistd.h>
 
 #define N 200
+extern int fd;
 
-enum colors {
+enum colors
+{
   cl_black = 0,
   cl_red = 1,
   cl_green = 2,
@@ -19,8 +21,8 @@ enum colors {
   cl_default = 9
 };
 
-int mt_clrscr(void);
-int mt_gotoXY(int x, int y);
-int mt_getscreensize(int* rows, int* cols);
-int mt_setfgcolor(enum colors cl);
-int mt_setbgcolor(enum colors cl);
+int mt_clrscr (void);
+int mt_gotoXY (int x, int y);
+int mt_getscreensize (int *rows, int *cols);
+int mt_setfgcolor (enum colors cl);
+int mt_setbgcolor (enum colors cl);

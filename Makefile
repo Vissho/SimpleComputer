@@ -7,7 +7,7 @@ LIBS = -I include/ -I thirdparty/
 
 all: mySimpleComputer test
 
-mySimpleComputer: src/main.c mySimpleComputer.a myTerm.a
+mySimpleComputer: src/main.c src/interface.c mySimpleComputer.a myTerm.a
 	$(CC) $(CFLAGS) $(LIBS) -o $@ -L. $^
 
 mySimpleComputer.a: src/mySimpleComputer.c
