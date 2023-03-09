@@ -17,9 +17,7 @@ mt_gotoXY (int x, int y)
   char str[N];
   int size = 0;
 
-  sprintf (str, "\E[%d;%dH", x, y);
-  for (; str[size] != '\0'; size++)
-    ;
+  size = sprintf (str, "\E[%d;%dH", x, y);
 
   write (fd, str, size);
 
