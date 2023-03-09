@@ -5,27 +5,27 @@ LIBS = -I include/ -I thirdparty/
 
 .PHONY: all
 
-all: bin/mySimpleComputer libs/mySimpleComputer.a
+all: mySimpleComputer test
 
-bin/mySimpleComputer: src/main.c libs/mySimpleComputer.a
-	$(CC) $(CFLAGS) $(LIBS) -o $@ *.o -L/libs/mySimpleComputer
+mySimpleComputer: src/main.c src/interface.c mySimpleComputer.a myTerm.a
+	$(CC) $(CFLAGS) $(LIBS) -o $@ -L. $^
 
-libs/mySimpleComputer.a:
-	$(CC) $(CFLAGS) $(LIBS) -c src/*.c
-	ar r libs/mySimpleComputer.a *.o
+mySimpleComputer.a: src/mySimpleComputer.c
+	$(CC) $(CFLAGS) $(LIBS) -c $^
+	ar r mySimpleComputer.a mySimpleComputer.o
 
-obj/%.o: %.c
-	$(CC) $(CFLAGS) $(LIBS) -c -o $@ $<
+myTerm.a: src/myTerm.c
+	$(CC) $(CFLAGS) $(LIBS) -c $^
+	ar r myTerm.a myTerm.o
 
 .PHONY: test
-test: bin/mySimpleComputer_test libs/test.a
+test: mySimpleComputer_test myTerm_test
 
-bin/mySimpleComputer_test: test/main.c test/mySimpleComputer_test.c libs/test.a
-	$(CC) $(CFLAGS) $(LIBS) -Wl,-rpath=libs/ -o $@ *.o -L/libs/mySimpleComputer
+mySimpleComputer_test: test/main.c test/mySimpleComputer_test.c mySimpleComputer.a
+	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
-libs/test.a:
-	$(CC) $(CFLAGS) $(LIBS) -c test/*.c
-	ar r libs/test.a main.o mySimpleComputer.o mySimpleComputer_test.o
+myTerm_test: test/main.c test/myTerm_test.c myTerm.a
+	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
 .PHONY: clean
 clean:
@@ -34,17 +34,22 @@ clean:
 	find . -type f -name "*.out" -exec rm -f {} \;
 	find . -type f -name "*.o" -exec rm -f {} \;
 	find . -type f -name "*.d" -exec rm -f {} \;
-	rm -rf bin/mySimpleComputer
-	rm -rf bin/mySimpleComputer_test
+	rm -rf mySimpleComputer
+	rm -rf mySimpleComputer_test
+	rm -rf myTerm_test
 
 rebuild: clean all
 
 run:
-	bin/mySimpleComputer
+	./mySimpleComputer
 
-test_run:
-	bin/mySimpleComputer_test
+test_run1:
+	./mySimpleComputer_test
+
+test_run2:
+	./myTerm_test
 
 memory_check:
-	valgrind --leak-check=full bin/mySimpleComputer
-	valgrind --leak-check=full bin/mySimpleComputer_test
+	valgrind --leak-check=full ./mySimpleComputer
+	valgrind --leak-check=full ./mySimpleComputer_test
+	valgrind --leak-check=full ./myTerm_test

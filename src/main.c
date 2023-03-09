@@ -1,64 +1,36 @@
+#include <interface.h>
 #include <mySimpleComputer.h>
+#include <myTerm.h>
 
-int main() {
-  sc_memoryInit();
-  sc_regInit();
+int
+main ()
+{
+  fd = open ("/dev/tty", O_WRONLY);
+  if (fd == -1 || !isatty (0) || !isatty (1))
+    {
+      fprintf (stderr, "Ошибка открытия терминала.\n");
+      close (fd);
+      return -1;
+    }
 
-  int temp;
+  sc_memoryInit ();
+  sc_regInit ();
 
-  printf("sc_memorySet check 1:\n");
-  sc_memorySet(55, 55);
-  printf("sc_memorySet check 2: ");
-  sc_memorySet(120, 9);
+  sc_memorySet (0, 6666);
+  sc_memorySet (10, 1010);
+  sc_memorySet (15, 0001);
+  sc_memorySet (27, 10);
+  sc_memorySet (33, 100);
+  sc_memorySet (55, 5555);
+  sc_memorySet (99, -9999);
+  sc_memorySet (1, 123);
+  sc_memorySet (2, 4567);
+  sc_memorySet (3, 8900);
 
-  printf("sc_memoryGet check 1: ");
-  sc_memoryGet(55, &temp);
-  printf("%d\n", temp);
-  printf("sc_memoryGet check 2: ");
-  sc_memoryGet(120, &temp);
-  printf("sc_memoryGet check 2: %d\n", temp);
+  sc_regSet (M, 1);
 
-  printf("sc_memorySave check 1:\n");
-  sc_memorySave("test/file.bin");
-  printf("sc_memorySave check 2:");
-  sc_memorySave(NULL);
+  interface ();
 
-  printf("sc_memoryLoad check 1:");
-  sc_memoryLoad("test/file.bin");
-  sc_memoryGet(55, &temp);
-  printf("%d\n", temp);
-  printf("sc_memoryLoad check 2:");
-  sc_memoryLoad(NULL);
-
-  printf("sc_regSet check 1:\n");
-  sc_regSet(CF, 1);
-  printf("sc_regSet check 2:");
-  sc_regSet(9, 1);
-
-  printf("sc_regGet check 1: ");
-  sc_regGet(CF, &temp);
-  printf("%d\n", temp);
-  printf("sc_regGet check 2:");
-  sc_regGet(9, &temp);
-  printf("sc_regGet check 2: %d\n", temp);
-
-  int n = 0;
-  printf("sc_commandEncode check 1:");
-  sc_commandEncode(33, 59, &n);
-  print_bites(n);
-  printf("%d\n", n);
-  printf("sc_commandEncode check 2:");
-  sc_commandEncode(2, 59, &n);
-  print_bites(n);
-  printf("%d\n", n);
-
-  int com = 0, oper = 0;
-  printf("sc_commandDecode check 1:");
-  sc_commandDecode(n, &com, &oper);
-  printf("%d %d\n", com, oper);
-  printf("sc_commandDecode check 2:");
-  sc_commandDecode(__INT_MAX__, &com, &oper);
-  printf("%d %d\n", com, oper);
-
+  close (fd);
   return 0;
 }

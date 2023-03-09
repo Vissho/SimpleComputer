@@ -55,8 +55,10 @@ dkms.conf
 .vscode/
 
 *.bin
+*.txt
 
 main
 a.out
 mySimpleComputer
 mySimpleComputer_test
+myTerm_test
