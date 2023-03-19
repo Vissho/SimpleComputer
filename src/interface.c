@@ -44,25 +44,39 @@ int
 print_accumulator (int position)
 {
   accumulator = RAM[position];
-  mt_gotoXY (1, 65);
-  printf ("┌─── accumulator ────┐");
-  mt_gotoXY (2, 65);
-  printf ("│       %.4X        │", accumulator);
-  mt_gotoXY (3, 65);
-  printf ("└────────────────────┘");
+
+  bc_box (1, 65, 3, 22);
+  mt_gotoXY (2, 73);
+
+  int temp = accumulator;
+  if (temp >= 0)
+    {
+      printf ("+");
+    }
+  else
+    {
+      printf ("-");
+      temp *= (-1);
+    }
+  printf ("%.4X", temp);
+
+  mt_gotoXY (1, 69);
+  printf (" accumulator ");
 
   return 0;
 }
 
 int
-print_instructionCounter (void)
+print_instructionCounter (int position)
 {
-  mt_gotoXY (4, 65);
-  printf ("┌ instructionCounter ┐");
-  mt_gotoXY (5, 65);
-  printf ("│       %.4X        │", instruction_counter);
-  mt_gotoXY (6, 65);
-  printf ("└────────────────────┘");
+  instruction_counter = position + 1;
+  bc_box (4, 65, 3, 22);
+  mt_gotoXY (5, 73);
+
+  printf ("%+.4d", instruction_counter);
+
+  mt_gotoXY (4, 66);
+  printf (" instructionCounter ");
 
   return 0;
 }
@@ -73,12 +87,34 @@ print_operation (int position)
   operation = RAM[position];
   int command = 0, operand = 0;
   sc_commandDecode (operation, &command, &operand);
-  mt_gotoXY (7, 65);
-  printf ("┌───── Operation ────┐");
-  mt_gotoXY (8, 65);
-  printf ("│      %.2X : %.2X      │", command, operand);
-  mt_gotoXY (9, 65);
-  printf ("└────────────────────┘");
+
+  bc_box (7, 65, 3, 22);
+  mt_gotoXY (8, 72);
+
+  if (command >= 0)
+    {
+      printf ("+");
+    }
+  else
+    {
+      printf ("-");
+      command *= (-1);
+    }
+  printf ("%.2X : ", command);
+
+  if (operand >= 0)
+    {
+      printf ("+");
+    }
+  else
+    {
+      printf ("-");
+      operand *= (-1);
+    }
+  printf ("%.2X", operand);
+
+  mt_gotoXY (7, 71);
+  printf (" Operation ");
 
   return 0;
 }
@@ -86,10 +122,8 @@ print_operation (int position)
 int
 print_flags (void)
 {
-  mt_gotoXY (10, 65);
-  printf ("┌─────── Flags ──────┐");
-  mt_gotoXY (11, 65);
-  printf ("│      ");
+  bc_box (10, 65, 3, 22);
+  mt_gotoXY (11, 71);
 
   int temp = 0;
 
@@ -158,9 +192,8 @@ print_flags (void)
       mt_setfgcolor (cl_default);
     }
 
-  printf ("    │");
-  mt_gotoXY (12, 65);
-  printf ("└────────────────────┘");
+  mt_gotoXY (10, 71);
+  printf (" Flags ");
 
   return 0;
 }
@@ -168,26 +201,25 @@ print_flags (void)
 int
 print_keys (void)
 {
-  mt_gotoXY (13, 50);
-  printf ("┌ Keys: ────────────────────────────┐");
-  mt_gotoXY (14, 50);
-  printf ("│ l  - load                         │");
-  mt_gotoXY (15, 50);
-  printf ("│ s  - save                         │");
-  mt_gotoXY (16, 50);
-  printf ("│ r  - run                          │");
-  mt_gotoXY (17, 50);
-  printf ("│ t  - step                         │");
-  mt_gotoXY (18, 50);
-  printf ("│ i  - reset                        │");
-  mt_gotoXY (19, 50);
-  printf ("│ F5 - accumulator                  │");
-  mt_gotoXY (20, 50);
-  printf ("│ F6 - instructionCounter           │");
-  mt_gotoXY (21, 50);
-  printf ("│                                   │");
-  mt_gotoXY (22, 50);
-  printf ("└───────────────────────────────────┘");
+  bc_box (13, 50, 10, 37);
+
+  mt_gotoXY (14, 52);
+  printf ("l  - load");
+  mt_gotoXY (15, 52);
+  printf ("s  - save");
+  mt_gotoXY (16, 52);
+  printf ("r  - run");
+  mt_gotoXY (17, 52);
+  printf ("t  - step");
+  mt_gotoXY (18, 52);
+  printf ("i  - reset");
+  mt_gotoXY (19, 52);
+  printf ("F5 - accumulator");
+  mt_gotoXY (20, 52);
+  printf ("F6 - instructionCounter");
+
+  mt_gotoXY (13, 51);
+  printf (" Keys: ");
 
   return 0;
 }
@@ -195,42 +227,25 @@ print_keys (void)
 int
 print_big_accumulator (void)
 {
-  mt_gotoXY (13, 0);
-  printf ("┌──────────────────────────────────────────────┐");
-  mt_gotoXY (14, 0);
-  printf ("│ ");
-  mt_gotoXY (14, 48);
-  printf ("│");
-  mt_gotoXY (15, 0);
-  printf ("│ ");
-  mt_gotoXY (15, 48);
-  printf ("│");
-  mt_gotoXY (16, 0);
-  printf ("│ ");
-  mt_gotoXY (16, 48);
-  printf ("│");
-  mt_gotoXY (17, 0);
-  printf ("│ ");
-  mt_gotoXY (17, 48);
-  printf ("│");
-  mt_gotoXY (18, 0);
-  printf ("│ ");
-  mt_gotoXY (18, 48);
-  printf ("│");
-  mt_gotoXY (19, 0);
-  printf ("│ ");
-  mt_gotoXY (19, 48);
-  printf ("│");
-  mt_gotoXY (20, 0);
-  printf ("│ ");
-  mt_gotoXY (20, 48);
-  printf ("│");
-  mt_gotoXY (21, 0);
-  printf ("│ ");
-  mt_gotoXY (21, 48);
-  printf ("│");
-  mt_gotoXY (22, 0);
-  printf ("└──────────────────────────────────────────────┘");
+  bc_box (13, 1, 10, 48);
+  int temp = accumulator;
+  if (temp >= 0)
+    {
+      bc_printbigchar (BigC[16], 14, 3, cl_default, cl_default);
+    }
+  else
+    {
+      bc_printbigchar (BigC[17], 14, 3, cl_default, cl_default);
+      temp *= (-1);
+    }
+
+  bc_printbigchar (BigC[temp % 16], 14, 39, cl_default, cl_default);
+  temp /= 16;
+  bc_printbigchar (BigC[temp % 16], 14, 30, cl_default, cl_default);
+  temp /= 16;
+  bc_printbigchar (BigC[temp % 16], 14, 21, cl_default, cl_default);
+  temp /= 16;
+  bc_printbigchar (BigC[temp % 16], 14, 12, cl_default, cl_default);
 
   return 0;
 }
@@ -241,13 +256,15 @@ interface (void)
   setvbuf (stdout, NULL, _IONBF, 0);
   mt_clrscr ();
 
+  int position = 0;
+
   print_memory ();
-  // print_accumulator (0);
-  // print_instructionCounter ();
-  // print_operation (0);
-  // print_flags ();
-  // print_big_accumulator ();
-  // print_keys ();
+  print_accumulator (position);
+  print_instructionCounter (position);
+  print_operation (position);
+  print_flags ();
+  print_big_accumulator ();
+  print_keys ();
   mt_gotoXY (24, 0);
 
   return 0;
