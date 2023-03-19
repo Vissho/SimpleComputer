@@ -624,6 +624,22 @@ interface (void)
   bc_printbigchar (BigC[16], 38, 60, cl_default, cl_black);
   bc_printbigchar (BigC[17], 38, 69, cl_default, cl_default);
 
+  int bb2[2] = { 0x7E81817E, 0x7E808080 };
+
+  bc_setbigcharpos (bb2, 1, 6, 1);
+  bc_setbigcharpos (bb2, 7, 7, 1);
+  bc_setbigcharpos (bb2, 1, 1, 0);
+  bc_setbigcharpos (bb2, 1, 2, 0);
+  bc_setbigcharpos (bb2, 1, 3, 0);
+  bc_setbigcharpos (bb2, 7, 7, 1);
+  bc_printbigchar (bb2, 47, 6, cl_default, cl_default);
+
+  int temp = 0;
+  bc_getbigcharpos (bb2, 7, 7, &temp);
+  printf ("\n%d\n", temp);
+  bc_getbigcharpos (bb2, 1, 1, &temp);
+  printf ("%d\n", temp);
+
   // print_memory ();
   // print_accumulator (0);
   // print_instructionCounter ();

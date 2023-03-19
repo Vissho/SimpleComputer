@@ -151,3 +151,58 @@ bc_printbigchar (int BC[2], int x, int y, enum colors cl1, enum colors cl2)
 
   return 0;
 }
+
+int
+bc_setbigcharpos (int *big, int x, int y, int value)
+{
+  if ((value != 0 && value != 1) || x < 1 || x > 8 || y < 1 || y > 8)
+    {
+      sc_regSet (E, 1);
+      return -1;
+    }
+
+  if (x < 5)
+    {
+      if (value)
+        {
+          big[0] = big[0] | (1 << (x * y - 1));
+        }
+      else
+        {
+          big[0] = big[0] & (~(1 << (x * y - 1)));
+        }
+    }
+  else
+    {
+      if (value)
+        {
+          big[1] = big[1] | (1 << (x * y - 1));
+        }
+      else
+        {
+          big[1] = big[1] & (~(1 << (x * y - 1)));
+        }
+    }
+
+  return 0;
+}
+
+int
+bc_getbigcharpos (int *big, int x, int y, int *value)
+{
+  if (x < 1 || x > 8 || y < 1 || y > 8)
+    {
+      sc_regSet (E, 1);
+      return -1;
+    }
+
+  if (x < 5)
+    {
+      *value = (big[0] >> (x * y - 1)) & 0x1;
+    }
+  else
+    {
+      *value = (big[1] >> (x * y - 1)) & 0x1;
+    }
+  return 0;
+}
