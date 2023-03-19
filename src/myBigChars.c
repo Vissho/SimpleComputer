@@ -62,3 +62,92 @@ bc_box (int x1, int y1, int x2, int y2)
 
   return 0;
 }
+
+int
+bc_printbigchar (int BC[2], int x, int y, enum colors cl1, enum colors cl2)
+{
+  if (!BC)
+    {
+      sc_regSet (E, 1);
+      return -1;
+    }
+
+  mt_setfgcolor (cl1);
+  mt_setbgcolor (cl2);
+
+  mt_gotoXY (x, y);
+  (BC[0] & 0x00000001) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00000002) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00000004) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00000008) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00000010) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00000020) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00000040) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00000080) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  mt_gotoXY (x + 1, y);
+  (BC[0] & 0x00000100) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00000200) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00000400) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00000800) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00001000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00002000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00004000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00008000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  mt_gotoXY (x + 2, y);
+  (BC[0] & 0x00010000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00020000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00040000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00080000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00100000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00200000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00400000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x00800000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  mt_gotoXY (x + 3, y);
+  (BC[0] & 0x01000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x02000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x04000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x08000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x10000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x20000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x40000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[0] & 0x80000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+
+  mt_gotoXY (x + 4, y);
+  (BC[1] & 0x00000001) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00000002) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00000004) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00000008) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00000010) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00000020) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00000040) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00000080) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  mt_gotoXY (x + 5, y);
+  (BC[1] & 0x00000100) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00000200) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00000400) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00000800) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00001000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00002000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00004000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00008000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  mt_gotoXY (x + 6, y);
+  (BC[1] & 0x00010000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00020000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00040000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00080000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00100000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00200000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00400000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x00800000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  mt_gotoXY (x + 7, y);
+  (BC[1] & 0x01000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x02000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x04000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x08000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x10000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x20000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x40000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+  (BC[1] & 0x80000000) == 0 ? printf (" ") : bc_printA (ACS_CKBOARD);
+
+  return 0;
+}

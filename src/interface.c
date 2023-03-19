@@ -586,6 +586,43 @@ interface (void)
 
   bc_printA (ACS_CKBOARD);
   bc_box (10, 5, 10, 10);
+  bc_printbigchar (BigC[0], 11, 6, cl_default, cl_default);
+  bc_printbigchar (BigC[1], 11, 15, cl_default, cl_default);
+  bc_printbigchar (BigC[2], 11, 24, cl_default, cl_default);
+  bc_printbigchar (BigC[3], 11, 33, cl_default, cl_default);
+  bc_printbigchar (BigC[4], 11, 42, cl_default, cl_default);
+  bc_printbigchar (BigC[5], 11, 51, cl_default, cl_default);
+  bc_printbigchar (BigC[6], 11, 60, cl_default, cl_default);
+  bc_printbigchar (BigC[7], 11, 69, cl_default, cl_default);
+  bc_printbigchar (BigC[8], 11, 78, cl_default, cl_default);
+  bc_printbigchar (BigC[9], 11, 87, cl_default, cl_default);
+  bc_printbigchar (BigC[10], 20, 6, cl_default, cl_default);
+  bc_printbigchar (BigC[11], 20, 15, cl_default, cl_default);
+  bc_printbigchar (BigC[12], 20, 24, cl_default, cl_default);
+  bc_printbigchar (BigC[13], 20, 33, cl_default, cl_default);
+  bc_printbigchar (BigC[14], 20, 42, cl_default, cl_default);
+  bc_printbigchar (BigC[15], 20, 51, cl_default, cl_default);
+  bc_printbigchar (BigC[16], 20, 60, cl_default, cl_default);
+  bc_printbigchar (BigC[17], 20, 69, cl_default, cl_default);
+
+  bc_printbigchar (BigC[0], 29, 6, cl_black, cl_default);
+  bc_printbigchar (BigC[1], 29, 15, cl_blue, cl_default);
+  bc_printbigchar (BigC[2], 29, 24, cl_cyan, cl_default);
+  bc_printbigchar (BigC[3], 29, 33, cl_green, cl_default);
+  bc_printbigchar (BigC[4], 29, 42, cl_purple, cl_default);
+  bc_printbigchar (BigC[5], 29, 51, cl_red, cl_default);
+  bc_printbigchar (BigC[6], 29, 60, cl_white, cl_default);
+  bc_printbigchar (BigC[7], 29, 69, cl_yellow, cl_default);
+  bc_printbigchar (BigC[8], 29, 78, cl_default, cl_default);
+  bc_printbigchar (BigC[9], 29, 87, cl_default, cl_blue);
+  bc_printbigchar (BigC[10], 38, 6, cl_default, cl_cyan);
+  bc_printbigchar (BigC[11], 38, 15, cl_default, cl_green);
+  bc_printbigchar (BigC[12], 38, 24, cl_default, cl_purple);
+  bc_printbigchar (BigC[13], 38, 33, cl_default, cl_red);
+  bc_printbigchar (BigC[14], 38, 42, cl_default, cl_white);
+  bc_printbigchar (BigC[15], 38, 51, cl_default, cl_yellow);
+  bc_printbigchar (BigC[16], 38, 60, cl_default, cl_black);
+  bc_printbigchar (BigC[17], 38, 69, cl_default, cl_default);
 
   // print_memory ();
   // print_accumulator (0);
