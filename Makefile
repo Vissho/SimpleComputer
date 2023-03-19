@@ -23,7 +23,7 @@ myBigChars.a: src/myBigChars.c
 	ar r myBigChars.a myBigChars.o
 
 .PHONY: test
-test: mySimpleComputer_test myTerm_test
+test: mySimpleComputer_test myTerm_test myBigChars_test
 
 mySimpleComputer_test: test/main.c test/mySimpleComputer_test.c mySimpleComputer.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
@@ -31,7 +31,7 @@ mySimpleComputer_test: test/main.c test/mySimpleComputer_test.c mySimpleComputer
 myTerm_test: test/main.c test/myTerm_test.c myTerm.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
-myBigChars_test: test/main.c test/myBigChars_test.c myBigChars.a
+myBigChars_test: test/main.c test/myBigChars_test.c myBigChars.a  mySimpleComputer.a myTerm.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
 .PHONY: clean
