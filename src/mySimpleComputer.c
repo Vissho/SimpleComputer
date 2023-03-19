@@ -23,7 +23,6 @@ sc_memoryInit (void)
       sc_memorySet (i, 0);
       if (RAM[i] != 0)
         {
-          printf ("Массив не инициализирован!\n");
           return -1;
         }
     }
@@ -41,7 +40,6 @@ sc_memorySet (int address, int value)
   else
     {
       sc_regSet (M, 1);
-      printf ("Выход за границы памяти!\n");
       return -1;
     }
 
@@ -58,7 +56,6 @@ sc_memoryGet (int address, int *value)
   else
     {
       sc_regSet (M, 1);
-      printf ("Выход за границы памяти!\n");
       return -1;
     }
 
@@ -70,7 +67,6 @@ sc_memorySave (char *filename)
 {
   if (!filename)
     {
-      printf ("Нет названия файла!\n");
       return -1;
     }
 
@@ -79,7 +75,6 @@ sc_memorySave (char *filename)
 
   if (!fp)
     {
-      printf ("Программа не нашла файл!\n");
       fclose (fp);
       return -1;
     }
@@ -96,7 +91,6 @@ sc_memoryLoad (char *filename)
 {
   if (!filename)
     {
-      printf ("Нет названия файла!\n");
       return -1;
     }
 
@@ -105,7 +99,6 @@ sc_memoryLoad (char *filename)
 
   if (!fp)
     {
-      printf ("Программа не нашла файл!\n");
       fclose (fp);
       return -1;
     }
@@ -140,7 +133,6 @@ sc_regSet (int Register, int value)
     }
   else
     {
-      printf ("Некорректные данные!\n");
       return -1;
     }
 
@@ -157,7 +149,6 @@ sc_regGet (int Register, int *value)
   else
     {
       sc_regSet (M, 1);
-      printf ("Выход за границы памяти!\n");
       return -1;
     }
 
@@ -173,7 +164,6 @@ sc_commandEncode (int command, int operand, int *value)
     }
   else
     {
-      printf ("Некорректные данные!\n");
       return -1;
     }
 
@@ -191,7 +181,6 @@ sc_commandDecode (int value, int *command, int *operand)
   else
     {
       sc_regSet (E, 1);
-      printf ("Ошибочная команда!\n");
       return -1;
     }
 

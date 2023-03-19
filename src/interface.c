@@ -1,6 +1,8 @@
 #include <interface.h>
+#include <myBigChars.h>
 #include <mySimpleComputer.h>
 #include <myTerm.h>
+#include <stdlib.h>
 
 static int accumulator = 0;
 static int instruction_counter = 0;
@@ -582,14 +584,17 @@ interface (void)
   setvbuf (stdout, NULL, _IONBF, 0);
   mt_clrscr ();
 
-  print_memory ();
-  print_accumulator (0);
-  print_instructionCounter ();
-  print_operation (0);
-  print_flags ();
-  print_big_accumulator ();
-  print_keys ();
-  mt_gotoXY (24, 0);
+  bc_printA (ACS_CKBOARD);
+  bc_box (10, 5, 10, 10);
+
+  // print_memory ();
+  // print_accumulator (0);
+  // print_instructionCounter ();
+  // print_operation (0);
+  // print_flags ();
+  // print_big_accumulator ();
+  // print_keys ();
+  // mt_gotoXY (24, 0);
 
   return 0;
 }
