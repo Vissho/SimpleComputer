@@ -206,3 +206,29 @@ bc_getbigcharpos (int *big, int x, int y, int *value)
     }
   return 0;
 }
+
+int
+bc_bigcharwrite (int fd, int *big, int count)
+{
+  if (count < 1 || !big)
+    {
+      sc_regSet (E, 1);
+      return -1;
+    }
+
+  write (fd, big, count * sizeof (int) * 2);
+  return 0;
+}
+
+int
+bc_bigcharread (int fd, int *big, int need_count, int *count)
+{
+  if (need_count < 1 || !big)
+    {
+      sc_regSet (E, 1);
+      return -1;
+    }
+
+  *count = read (fd, big, need_count * sizeof (int) * 2);
+  return 0;
+}

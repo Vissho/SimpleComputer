@@ -640,6 +640,17 @@ interface (void)
   bc_getbigcharpos (bb2, 1, 1, &temp);
   printf ("%d\n", temp);
 
+  int fd1 = open ("x.txt", O_WRONLY);
+  bc_bigcharwrite (fd1, BigC[0], 2);
+
+  int bb3[2];
+  int fd2 = open ("x.txt", O_RDONLY);
+  bc_bigcharread (fd2, bb3, 1, &temp);
+  bc_printbigchar (bb3, 47, 26, cl_default, cl_default);
+
+  close (fd1);
+  close (fd2);
+
   // print_memory ();
   // print_accumulator (0);
   // print_instructionCounter ();
