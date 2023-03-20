@@ -11,7 +11,7 @@ static int operation = 0;
 int
 print_memory (void)
 {
-  int temp = 0;
+  int temp = 0, flag = 0, command = 0, operand = 0;
 
   bc_box (1, 1, 12, 63);
 
@@ -20,17 +20,21 @@ print_memory (void)
       mt_gotoXY (i + 2, 3);
       for (int j = 0; j < 10; ++j)
         {
-          temp = RAM[i * 10 + j];
-          if (temp >= 0)
-            {
-              printf ("+");
-            }
-          else
-            {
-              printf ("-");
-              temp *= (-1);
-            }
-          printf ("%.4X ", temp);
+	  command = 0, operand = 0, flag = 0;
+          sc_memoryGet(i * 10 + j, &temp);
+          flag = sc_commandDecode (temp & 0x3FFF, &command, &operand);
+	  temp = (temp >> 15) & 0x1;
+          if (!temp || flag)
+    	  {
+      		printf ("+");
+    	  }
+  	  else
+    	  {
+      		printf ("-");
+          }
+  	  printf ("%.2X", command);
+  	  printf ("%.2X ", operand);
+
         }
     }
 
@@ -69,7 +73,7 @@ print_accumulator (int position)
 int
 print_instructionCounter (int position)
 {
-  instruction_counter = position + 1;
+  instruction_counter = position;
   bc_box (4, 65, 3, 22);
   mt_gotoXY (5, 73);
 
@@ -101,16 +105,6 @@ print_operation (int position)
       command *= (-1);
     }
   printf ("%.2X : ", command);
-
-  if (operand >= 0)
-    {
-      printf ("+");
-    }
-  else
-    {
-      printf ("-");
-      operand *= (-1);
-    }
   printf ("%.2X", operand);
 
   mt_gotoXY (7, 71);
@@ -228,24 +222,25 @@ int
 print_big_accumulator (void)
 {
   bc_box (13, 1, 10, 48);
-  int temp = accumulator;
-  if (temp >= 0)
+  int temp = 0, flag = 0, command = 0, operand = 0;
+  sc_memoryGet(0, &temp);
+  flag = sc_commandDecode (temp & 0x3FFF, &command, &operand);
+  temp = (temp >> 15) & 0x1;
+  if (!temp || flag)
     {
       bc_printbigchar (BigC[16], 14, 3, cl_default, cl_default);
     }
   else
     {
       bc_printbigchar (BigC[17], 14, 3, cl_default, cl_default);
-      temp *= (-1);
     }
-
-  bc_printbigchar (BigC[temp % 16], 14, 39, cl_default, cl_default);
-  temp /= 16;
-  bc_printbigchar (BigC[temp % 16], 14, 30, cl_default, cl_default);
-  temp /= 16;
-  bc_printbigchar (BigC[temp % 16], 14, 21, cl_default, cl_default);
-  temp /= 16;
-  bc_printbigchar (BigC[temp % 16], 14, 12, cl_default, cl_default);
+//printf("%x   %x", command, operand);
+  bc_printbigchar (BigC[operand % 16], 14, 39, cl_default, cl_default);
+  operand /= 16;
+  bc_printbigchar (BigC[operand % 16], 14, 30, cl_default, cl_default);
+  bc_printbigchar (BigC[command % 16], 14, 21, cl_default, cl_default);
+  command /= 16;
+  bc_printbigchar (BigC[command % 16], 14, 12, cl_default, cl_default);
 
   return 0;
 }

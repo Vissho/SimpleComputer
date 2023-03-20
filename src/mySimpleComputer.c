@@ -174,14 +174,14 @@ sc_commandEncode (int command, int operand, int *value)
 int
 sc_commandDecode (int value, int *command, int *operand)
 {
-  if (CHECK_VALUE)
+  if ((value >> 14) == 0)
     {
-      *command = 0 | (value >> 7);
-      *operand = 0 | (value & 127);
+      *command = (value >> 7);
+      *operand = (value & 127);
     }
   else
     {
-      sc_regSet (E, 1);
+      //sc_regSet (E, 1);
       return -1;
     }
 
