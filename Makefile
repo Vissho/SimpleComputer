@@ -7,7 +7,7 @@ LIBS = -I include/ -I thirdparty/
 
 all: mySimpleComputer test
 
-mySimpleComputer: src/main.c src/interface.c mySimpleComputer.a myTerm.a myBigChars.a
+mySimpleComputer: src/main.c src/interface.c mySimpleComputer.a myTerm.a myBigChars.a myReadkey.a
 	$(CC) $(CFLAGS) $(LIBS) -o $@ -L. $^
 
 mySimpleComputer.a: src/mySimpleComputer.c
@@ -22,6 +22,10 @@ myBigChars.a: src/myBigChars.c
 	$(CC) $(CFLAGS) $(LIBS) -c $^
 	ar r myBigChars.a myBigChars.o
 
+myReadkey.a: src/myReadkey.c
+	$(CC) $(CFLAGS) $(LIBS) -c $^
+	ar r myReadkey.a myReadkey.o
+
 .PHONY: test
 test: mySimpleComputer_test myTerm_test myBigChars_test
 
@@ -32,6 +36,9 @@ myTerm_test: test/main.c test/myTerm_test.c myTerm.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
 myBigChars_test: test/main.c test/myBigChars_test.c myBigChars.a  mySimpleComputer.a myTerm.a
+	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
+
+myReadkey_test: test/main.c test/myReadkey_test.c myReadkey.a  mySimpleComputer.a myTerm.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
 .PHONY: clean
@@ -45,6 +52,7 @@ clean:
 	rm -rf mySimpleComputer_test
 	rm -rf myTerm_test
 	rm -rf myBigChars_test
+	rm -rf myReadkey_test
 
 rebuild: clean all
 
@@ -60,8 +68,12 @@ test_run2:
 test_run3:
 	./myBigChars_test
 
+test_run4:
+	./myReadkey_test
+
 memory_check:
 	valgrind --leak-check=full ./mySimpleComputer
 	valgrind --leak-check=full ./mySimpleComputer_test
 	valgrind --leak-check=full ./myTerm_test
 	valgrind --leak-check=full ./myBigChars_test
+	valgrind --leak-check=full ./myReadkey_test
