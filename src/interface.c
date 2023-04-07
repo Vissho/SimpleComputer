@@ -1,28 +1,50 @@
 #include <interface.h>
+#include <myBigChars.h>
 #include <mySimpleComputer.h>
 #include <myTerm.h>
+#include <stdlib.h>
 
 static int accumulator = 0;
 static int instruction_counter = 0;
 static int operation = 0;
+static int error_xy = 23;
+
+static char *ERROR[5]
+    = { "Переполнение при выполнении операции.", "Ошибка деления на 0.",
+        "Ошибка выхода за границы памяти", "Игнорирование тактовых импульсов.",
+        "Указана неверная команда." };
 
 int
 print_memory (void)
 {
-  printf ("┌────────────────────────── Memory ──────────────────"
-          "─────────┐\n");
+  int temp = 0, flag = 0, command = 0, operand = 0;
+
+  bc_box (1, 1, 12, 63);
 
   for (int i = 0; i < 10; ++i)
     {
-      printf ("│ ");
+      mt_gotoXY (i + 2, 3);
       for (int j = 0; j < 10; ++j)
         {
-          printf ("%+.4d ", RAM[i * 10 + j]);
+          command = 0, operand = 0, flag = 0;
+          error (sc_memoryGet (i * 10 + j, &temp));
+          flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
+          temp = (temp >> 15) & 0x1;
+          if (!temp || flag)
+            {
+              printf ("+");
+            }
+          else
+            {
+              printf ("-");
+            }
+          printf ("%.2X", command);
+          printf ("%.2X ", operand);
         }
-      printf ("│\n");
     }
-  printf ("└────────────────────────────────────────────────────"
-          "─────────┘\n");
+
+  mt_gotoXY (1, 28);
+  printf (" Memory ");
 
   return 0;
 }
@@ -30,26 +52,43 @@ print_memory (void)
 int
 print_accumulator (int position)
 {
-  accumulator = RAM[position];
-  mt_gotoXY (1, 65);
-  printf ("┌─── accumulator ────┐");
-  mt_gotoXY (2, 65);
-  printf ("│       %+.4d        │", accumulator);
-  mt_gotoXY (3, 65);
-  printf ("└────────────────────┘");
+  int temp = 0, flag = 0, command = 0, operand = 0;
+  error (sc_memoryGet (position, &accumulator));
+
+  bc_box (1, 65, 3, 22);
+  mt_gotoXY (2, 73);
+
+  temp = accumulator;
+  flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
+  temp = (temp >> 15) & 0x1;
+  if (!temp || flag)
+    {
+      printf ("+");
+    }
+  else
+    {
+      printf ("-");
+    }
+  printf ("%.2X", command);
+  printf ("%.2X", operand);
+
+  mt_gotoXY (1, 69);
+  printf (" accumulator ");
 
   return 0;
 }
 
 int
-print_instructionCounter (void)
+print_instructionCounter (int position)
 {
-  mt_gotoXY (4, 65);
-  printf ("┌ instructionCounter ┐");
-  mt_gotoXY (5, 65);
-  printf ("│       %+.4d        │", instruction_counter);
-  mt_gotoXY (6, 65);
-  printf ("└────────────────────┘");
+  instruction_counter = position;
+  bc_box (4, 65, 3, 22);
+  mt_gotoXY (5, 73);
+
+  printf ("%+.4d", instruction_counter);
+
+  mt_gotoXY (4, 66);
+  printf (" instructionCounter ");
 
   return 0;
 }
@@ -57,15 +96,28 @@ print_instructionCounter (void)
 int
 print_operation (int position)
 {
-  operation = RAM[position];
-  int command = 0, operand = 0;
-  sc_commandDecode (operation, &command, &operand);
-  mt_gotoXY (7, 65);
-  printf ("┌───── Operation ────┐");
-  mt_gotoXY (8, 65);
-  printf ("│      %+.2d : %.2d      │", command, operand);
-  mt_gotoXY (9, 65);
-  printf ("└────────────────────┘");
+  error (sc_memoryGet (position, &operation));
+  int command = 0, operand = 0, flag = 0;
+
+  bc_box (7, 65, 3, 22);
+  mt_gotoXY (8, 72);
+
+  int temp = operation;
+  flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
+  temp = (temp >> 15) & 0x1;
+  if (!temp || flag)
+    {
+      printf ("+");
+    }
+  else
+    {
+      printf ("-");
+    }
+  printf ("%.2X : ", command);
+  printf ("%.2X", operand);
+
+  mt_gotoXY (7, 71);
+  printf (" Operation ");
 
   return 0;
 }
@@ -73,14 +125,12 @@ print_operation (int position)
 int
 print_flags (void)
 {
-  mt_gotoXY (10, 65);
-  printf ("┌─────── Flags ──────┐");
-  mt_gotoXY (11, 65);
-  printf ("│      ");
+  bc_box (10, 65, 3, 22);
+  mt_gotoXY (11, 71);
 
   int temp = 0;
 
-  if (!sc_regGet (P, &temp) && temp)
+  if (!error (sc_regGet (P, &temp)) && temp)
     {
       mt_setfgcolor (cl_red);
       printf ("P ");
@@ -93,7 +143,7 @@ print_flags (void)
       mt_setfgcolor (cl_default);
     }
 
-  if (!sc_regGet (O, &temp) && temp)
+  if (!error (sc_regGet (O, &temp)) && temp)
     {
       mt_setfgcolor (cl_red);
       printf ("O ");
@@ -106,7 +156,7 @@ print_flags (void)
       mt_setfgcolor (cl_default);
     }
 
-  if (!sc_regGet (M, &temp) && temp)
+  if (!error (sc_regGet (M, &temp)) && temp)
     {
       mt_setfgcolor (cl_red);
       printf ("M ");
@@ -119,7 +169,7 @@ print_flags (void)
       mt_setfgcolor (cl_default);
     }
 
-  if (!sc_regGet (T, &temp) && temp)
+  if (!error (sc_regGet (T, &temp)) && temp)
     {
       mt_setfgcolor (cl_red);
       printf ("T ");
@@ -132,7 +182,7 @@ print_flags (void)
       mt_setfgcolor (cl_default);
     }
 
-  if (!sc_regGet (E, &temp) && temp)
+  if (!error (sc_regGet (E, &temp)) && temp)
     {
       mt_setfgcolor (cl_red);
       printf ("E ");
@@ -145,9 +195,8 @@ print_flags (void)
       mt_setfgcolor (cl_default);
     }
 
-  printf ("    │");
-  mt_gotoXY (12, 65);
-  printf ("└────────────────────┘");
+  mt_gotoXY (10, 71);
+  printf (" Flags ");
 
   return 0;
 }
@@ -155,423 +204,52 @@ print_flags (void)
 int
 print_keys (void)
 {
-  mt_gotoXY (13, 50);
-  printf ("┌ Keys: ────────────────────────────┐");
-  mt_gotoXY (14, 50);
-  printf ("│ l  - load                         │");
-  mt_gotoXY (15, 50);
-  printf ("│ s  - save                         │");
-  mt_gotoXY (16, 50);
-  printf ("│ r  - run                          │");
-  mt_gotoXY (17, 50);
-  printf ("│ t  - step                         │");
-  mt_gotoXY (18, 50);
-  printf ("│ i  - reset                        │");
-  mt_gotoXY (19, 50);
-  printf ("│ F5 - accumulator                  │");
-  mt_gotoXY (20, 50);
-  printf ("│ F6 - instructionCounter           │");
-  mt_gotoXY (21, 50);
-  printf ("│                                   │");
-  mt_gotoXY (22, 50);
-  printf ("└───────────────────────────────────┘");
+  bc_box (13, 50, 10, 37);
+
+  mt_gotoXY (14, 52);
+  printf ("l  - load");
+  mt_gotoXY (15, 52);
+  printf ("s  - save");
+  mt_gotoXY (16, 52);
+  printf ("r  - run");
+  mt_gotoXY (17, 52);
+  printf ("t  - step");
+  mt_gotoXY (18, 52);
+  printf ("i  - reset");
+  mt_gotoXY (19, 52);
+  printf ("F5 - accumulator");
+  mt_gotoXY (20, 52);
+  printf ("F6 - instructionCounter");
+
+  mt_gotoXY (13, 51);
+  printf (" Keys: ");
 
   return 0;
 }
 
 int
-print_big_num_plus (int x, int y)
+print_big_accumulator (int position)
 {
-  mt_gotoXY (x, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 1, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 2, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 3, y);
-  printf ("████████");
-  mt_gotoXY (x + 4, y);
-  printf ("████████");
-  mt_gotoXY (x + 5, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 6, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 7, y);
-  printf ("   ██   ");
-
-  return 0;
-}
-
-int
-print_big_num_minus (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf ("        ");
-  mt_gotoXY (x + 1, y);
-  printf ("        ");
-  mt_gotoXY (x + 2, y);
-  printf ("        ");
-  mt_gotoXY (x + 3, y);
-  printf ("        ");
-  mt_gotoXY (x + 4, y);
-  printf ("████████");
-  mt_gotoXY (x + 5, y);
-  printf ("        ");
-  mt_gotoXY (x + 6, y);
-  printf ("        ");
-  mt_gotoXY (x + 7, y);
-  printf ("        ");
-
-  return 0;
-}
-
-int
-print_big_num_0 (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf ("████████");
-  mt_gotoXY (x + 1, y);
-  printf ("█      █");
-  mt_gotoXY (x + 2, y);
-  printf ("█      █");
-  mt_gotoXY (x + 3, y);
-  printf ("█      █");
-  mt_gotoXY (x + 4, y);
-  printf ("█      █");
-  mt_gotoXY (x + 5, y);
-  printf ("█      █");
-  mt_gotoXY (x + 6, y);
-  printf ("█      █");
-  mt_gotoXY (x + 7, y);
-  printf ("████████");
-
-  return 0;
-}
-
-int
-print_big_num_1 (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 1, y);
-  printf (" ████   ");
-  mt_gotoXY (x + 2, y);
-  printf ("██ ██   ");
-  mt_gotoXY (x + 3, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 4, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 5, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 6, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 7, y);
-  printf ("████████");
-
-  return 0;
-}
-
-int
-print_big_num_2 (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf ("  ████  ");
-  mt_gotoXY (x + 1, y);
-  printf ("██    ██");
-  mt_gotoXY (x + 2, y);
-  printf ("     ██ ");
-  mt_gotoXY (x + 3, y);
-  printf ("    ██  ");
-  mt_gotoXY (x + 4, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 5, y);
-  printf ("  ██    ");
-  mt_gotoXY (x + 6, y);
-  printf (" ██     ");
-  mt_gotoXY (x + 7, y);
-  printf ("████████");
-
-  return 0;
-}
-
-int
-print_big_num_3 (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf ("  ████  ");
-  mt_gotoXY (x + 1, y);
-  printf ("██    ██");
-  mt_gotoXY (x + 2, y);
-  printf ("     ██ ");
-  mt_gotoXY (x + 3, y);
-  printf ("  █████ ");
-  mt_gotoXY (x + 4, y);
-  printf ("     ██ ");
-  mt_gotoXY (x + 5, y);
-  printf ("      ██");
-  mt_gotoXY (x + 6, y);
-  printf ("██    ██");
-  mt_gotoXY (x + 7, y);
-  printf ("  ████  ");
-
-  return 0;
-}
-
-int
-print_big_num_4 (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf ("    ███ ");
-  mt_gotoXY (x + 1, y);
-  printf ("   █ ██ ");
-  mt_gotoXY (x + 2, y);
-  printf ("  █  ██ ");
-  mt_gotoXY (x + 3, y);
-  printf (" █   ██ ");
-  mt_gotoXY (x + 4, y);
-  printf ("█    ██ ");
-  mt_gotoXY (x + 5, y);
-  printf ("████████");
-  mt_gotoXY (x + 6, y);
-  printf ("     ██ ");
-  mt_gotoXY (x + 7, y);
-  printf ("     ██ ");
-
-  return 0;
-}
-
-int
-print_big_num_5 (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf ("████████");
-  mt_gotoXY (x + 1, y);
-  printf ("██      ");
-  mt_gotoXY (x + 2, y);
-  printf ("██      ");
-  mt_gotoXY (x + 3, y);
-  printf ("██████  ");
-  mt_gotoXY (x + 4, y);
-  printf ("      ██");
-  mt_gotoXY (x + 5, y);
-  printf ("      ██");
-  mt_gotoXY (x + 6, y);
-  printf ("      ██");
-  mt_gotoXY (x + 7, y);
-  printf ("██████  ");
-
-  return 0;
-}
-
-int
-print_big_num_6 (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 1, y);
-  printf ("  ██    ");
-  mt_gotoXY (x + 2, y);
-  printf (" ██     ");
-  mt_gotoXY (x + 3, y);
-  printf ("██      ");
-  mt_gotoXY (x + 4, y);
-  printf ("████████");
-  mt_gotoXY (x + 5, y);
-  printf ("█      █");
-  mt_gotoXY (x + 6, y);
-  printf ("█      █");
-  mt_gotoXY (x + 7, y);
-  printf ("████████");
-
-  return 0;
-}
-
-int
-print_big_num_7 (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf ("████████");
-  mt_gotoXY (x + 1, y);
-  printf ("      ██");
-  mt_gotoXY (x + 2, y);
-  printf ("     ██ ");
-  mt_gotoXY (x + 3, y);
-  printf ("    ██  ");
-  mt_gotoXY (x + 4, y);
-  printf ("   ██   ");
-  mt_gotoXY (x + 5, y);
-  printf ("  ██    ");
-  mt_gotoXY (x + 6, y);
-  printf (" ██     ");
-  mt_gotoXY (x + 7, y);
-  printf ("██      ");
-
-  return 0;
-}
-
-int
-print_big_num_8 (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf (" ██████ ");
-  mt_gotoXY (x + 1, y);
-  printf ("██    ██");
-  mt_gotoXY (x + 2, y);
-  printf (" ██  ██ ");
-  mt_gotoXY (x + 3, y);
-  printf ("  ████  ");
-  mt_gotoXY (x + 4, y);
-  printf (" ██  ██ ");
-  mt_gotoXY (x + 5, y);
-  printf ("██    ██");
-  mt_gotoXY (x + 6, y);
-  printf ("██    ██");
-  mt_gotoXY (x + 7, y);
-  printf (" ██████ ");
-
-  return 0;
-}
-
-int
-print_big_num_9 (int x, int y)
-{
-  mt_gotoXY (x, y);
-  printf ("████████");
-  mt_gotoXY (x + 1, y);
-  printf ("█      █");
-  mt_gotoXY (x + 2, y);
-  printf ("█      █");
-  mt_gotoXY (x + 3, y);
-  printf ("████████");
-  mt_gotoXY (x + 4, y);
-  printf ("      ██");
-  mt_gotoXY (x + 5, y);
-  printf ("     ██ ");
-  mt_gotoXY (x + 6, y);
-  printf ("    ██  ");
-  mt_gotoXY (x + 7, y);
-  printf ("   ██   ");
-
-  return 0;
-}
-
-int
-print_big_num (char sign, int x, int y)
-{
-  if (sign == '+')
+  bc_box (13, 1, 10, 48);
+  int temp = 0, flag = 0, command = 0, operand = 0;
+  error (sc_memoryGet (position, &temp));
+  flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
+  temp = (temp >> 15) & 0x1;
+  if (!temp || flag)
     {
-      print_big_num_plus (x, y);
-    }
-  else if (sign == '-')
-    {
-      print_big_num_minus (x, y);
-    }
-  else if (sign == '0')
-    {
-      print_big_num_0 (x, y);
-    }
-  else if (sign == '1')
-    {
-      print_big_num_1 (x, y);
-    }
-  else if (sign == '2')
-    {
-      print_big_num_2 (x, y);
-    }
-  else if (sign == '3')
-    {
-      print_big_num_3 (x, y);
-    }
-  else if (sign == '4')
-    {
-      print_big_num_4 (x, y);
-    }
-  else if (sign == '5')
-    {
-      print_big_num_5 (x, y);
-    }
-  else if (sign == '6')
-    {
-      print_big_num_6 (x, y);
-    }
-  else if (sign == '7')
-    {
-      print_big_num_7 (x, y);
-    }
-  else if (sign == '8')
-    {
-      print_big_num_8 (x, y);
-    }
-  else if (sign == '9')
-    {
-      print_big_num_9 (x, y);
-    }
-
-  return 0;
-}
-
-int
-print_big_accumulator (void)
-{
-  mt_gotoXY (13, 0);
-  printf ("┌──────────────────────────────────────────────┐");
-  mt_gotoXY (14, 0);
-  printf ("│ ");
-  mt_gotoXY (14, 48);
-  printf ("│");
-  mt_gotoXY (15, 0);
-  printf ("│ ");
-  mt_gotoXY (15, 48);
-  printf ("│");
-  mt_gotoXY (16, 0);
-  printf ("│ ");
-  mt_gotoXY (16, 48);
-  printf ("│");
-  mt_gotoXY (17, 0);
-  printf ("│ ");
-  mt_gotoXY (17, 48);
-  printf ("│");
-  mt_gotoXY (18, 0);
-  printf ("│ ");
-  mt_gotoXY (18, 48);
-  printf ("│");
-  mt_gotoXY (19, 0);
-  printf ("│ ");
-  mt_gotoXY (19, 48);
-  printf ("│");
-  mt_gotoXY (20, 0);
-  printf ("│ ");
-  mt_gotoXY (20, 48);
-  printf ("│");
-  mt_gotoXY (21, 0);
-  printf ("│ ");
-  mt_gotoXY (21, 48);
-  printf ("│");
-  mt_gotoXY (22, 0);
-  printf ("└──────────────────────────────────────────────┘");
-
-  if (accumulator >= 0)
-    {
-      print_big_num ('+', 14, 3);
+      bc_printbigchar (BigC[16], 14, 3, cl_default, cl_default);
     }
   else
     {
-      print_big_num ('-', 14, 3);
+      bc_printbigchar (BigC[17], 14, 3, cl_default, cl_default);
     }
-
-  int temp = accumulator;
-
-  if (temp < 0)
-    temp *= (-1);
-
-  print_big_num (temp % 10 + '0', 14, 39);
-  temp /= 10;
-  print_big_num (temp % 10 + '0', 14, 30);
-  temp /= 10;
-  print_big_num (temp % 10 + '0', 14, 21);
-  temp /= 10;
-  print_big_num (temp % 10 + '0', 14, 12);
-  temp /= 10;
+  // printf("%x   %x", command, operand);
+  bc_printbigchar (BigC[operand % 16], 14, 39, cl_default, cl_default);
+  operand /= 16;
+  bc_printbigchar (BigC[operand % 16], 14, 30, cl_default, cl_default);
+  bc_printbigchar (BigC[command % 16], 14, 21, cl_default, cl_default);
+  command /= 16;
+  bc_printbigchar (BigC[command % 16], 14, 12, cl_default, cl_default);
 
   return 0;
 }
@@ -582,14 +260,51 @@ interface (void)
   setvbuf (stdout, NULL, _IONBF, 0);
   mt_clrscr ();
 
+  int position = 0;
+
   print_memory ();
-  print_accumulator (0);
-  print_instructionCounter ();
-  print_operation (0);
+  print_accumulator (position);
+  print_instructionCounter (position);
+  print_operation (position);
   print_flags ();
-  print_big_accumulator ();
+  print_big_accumulator (position);
   print_keys ();
-  mt_gotoXY (24, 0);
+  mt_gotoXY (error_xy + 1, 0);
 
   return 0;
+}
+
+int
+error (int value)
+{
+  if (value != 0)
+    {
+
+      int temp = value * (-1) - 1;
+      mt_gotoXY (error_xy++, 0);
+      printf ("%s", ERROR[temp]);
+
+      if (temp == 0)
+        {
+          sc_regSet (P, 1);
+        }
+      else if (temp == 1)
+        {
+          sc_regSet (O, 1);
+        }
+      else if (temp == 2)
+        {
+          sc_regSet (M, 1);
+        }
+      else if (temp == 3)
+        {
+          sc_regSet (T, 1);
+        }
+      else if (temp == 4)
+        {
+          sc_regSet (E, 1);
+        }
+    }
+
+  return value;
 }

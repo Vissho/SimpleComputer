@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <mySimpleComputer.h>
 
 int RAM[SIZE];
@@ -23,8 +24,7 @@ sc_memoryInit (void)
       sc_memorySet (i, 0);
       if (RAM[i] != 0)
         {
-          printf ("Массив не инициализирован!\n");
-          return -1;
+          return -5;
         }
     }
 
@@ -34,15 +34,13 @@ sc_memoryInit (void)
 int
 sc_memorySet (int address, int value)
 {
-  if (address < SIZE && address >= 0 && value < 10000 && value > -10000)
+  if (address < SIZE && address >= 0 && value < INT_MAX && value > INT_MIN)
     {
       RAM[address] = value;
     }
   else
     {
-      sc_regSet (M, 1);
-      printf ("Выход за границы памяти!\n");
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -57,9 +55,7 @@ sc_memoryGet (int address, int *value)
     }
   else
     {
-      sc_regSet (M, 1);
-      printf ("Выход за границы памяти!\n");
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -70,8 +66,7 @@ sc_memorySave (char *filename)
 {
   if (!filename)
     {
-      printf ("Нет названия файла!\n");
-      return -1;
+      return -5;
     }
 
   FILE *fp;
@@ -79,9 +74,8 @@ sc_memorySave (char *filename)
 
   if (!fp)
     {
-      printf ("Программа не нашла файл!\n");
       fclose (fp);
-      return -1;
+      return -5;
     }
 
   for (int i = 0; i < SIZE; ++i)
@@ -96,8 +90,7 @@ sc_memoryLoad (char *filename)
 {
   if (!filename)
     {
-      printf ("Нет названия файла!\n");
-      return -1;
+      return -5;
     }
 
   FILE *fp;
@@ -105,9 +98,8 @@ sc_memoryLoad (char *filename)
 
   if (!fp)
     {
-      printf ("Программа не нашла файл!\n");
       fclose (fp);
-      return -1;
+      return -5;
     }
 
   for (int i = 0; i < SIZE; ++i)
@@ -140,8 +132,7 @@ sc_regSet (int Register, int value)
     }
   else
     {
-      printf ("Некорректные данные!\n");
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -156,9 +147,7 @@ sc_regGet (int Register, int *value)
     }
   else
     {
-      sc_regSet (M, 1);
-      printf ("Выход за границы памяти!\n");
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -173,8 +162,7 @@ sc_commandEncode (int command, int operand, int *value)
     }
   else
     {
-      printf ("Некорректные данные!\n");
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -183,16 +171,14 @@ sc_commandEncode (int command, int operand, int *value)
 int
 sc_commandDecode (int value, int *command, int *operand)
 {
-  if (CHECK_VALUE)
+  if ((value >> 14) == 0)
     {
-      *command = 0 | (value >> 7);
-      *operand = 0 | (value & 127);
+      *command = (value >> 7);
+      *operand = (value & 127);
     }
   else
     {
-      sc_regSet (E, 1);
-      printf ("Ошибочная команда!\n");
-      return -1;
+      return -5;
     }
 
   return 0;

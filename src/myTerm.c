@@ -36,8 +36,7 @@ mt_getscreensize (int *rows, int *cols)
     }
   else
     {
-      printf ("Ошибка получения размера экрана.\n");
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -49,10 +48,7 @@ mt_setfgcolor (enum colors cl)
   char str[N];
   int size = 0;
 
-  sprintf (str, "\E[3%dm", cl);
-  for (; str[size] != '\0'; size++)
-    ;
-
+  size = sprintf (str, "\E[3%dm", cl);
   write (fd, str, size);
 
   return 0;
@@ -64,10 +60,7 @@ mt_setbgcolor (enum colors cl)
   char str[N];
   int size = 0;
 
-  sprintf (str, "\E[4%dm", cl);
-  for (; str[size] != '\0'; size++)
-    ;
-
+  size = sprintf (str, "\E[4%dm", cl);
   write (fd, str, size);
 
   return 0;
