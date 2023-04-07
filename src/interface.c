@@ -7,6 +7,12 @@
 static int accumulator = 0;
 static int instruction_counter = 0;
 static int operation = 0;
+static int error_xy = 23;
+
+static char *ERROR[5]
+    = { "Переполнение при выполнении операции.", "Ошибка деления на 0.",
+        "Ошибка выхода за границы памяти", "Игнорирование тактовых импульсов.",
+        "Указана неверная команда." };
 
 int
 print_memory (void)
@@ -20,21 +26,20 @@ print_memory (void)
       mt_gotoXY (i + 2, 3);
       for (int j = 0; j < 10; ++j)
         {
-	  command = 0, operand = 0, flag = 0;
-          sc_memoryGet(i * 10 + j, &temp);
-          flag = sc_commandDecode (temp & 0x3FFF, &command, &operand);
-	  temp = (temp >> 15) & 0x1;
+          command = 0, operand = 0, flag = 0;
+          error (sc_memoryGet (i * 10 + j, &temp));
+          flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
+          temp = (temp >> 15) & 0x1;
           if (!temp || flag)
-    	  {
-      		printf ("+");
-    	  }
-  	  else
-    	  {
-      		printf ("-");
-          }
-  	  printf ("%.2X", command);
-  	  printf ("%.2X ", operand);
-
+            {
+              printf ("+");
+            }
+          else
+            {
+              printf ("-");
+            }
+          printf ("%.2X", command);
+          printf ("%.2X ", operand);
         }
     }
 
@@ -47,22 +52,25 @@ print_memory (void)
 int
 print_accumulator (int position)
 {
-  accumulator = RAM[position];
+  int temp = 0, flag = 0, command = 0, operand = 0;
+  error (sc_memoryGet (position, &accumulator));
 
   bc_box (1, 65, 3, 22);
   mt_gotoXY (2, 73);
 
-  int temp = accumulator;
-  if (temp >= 0)
+  temp = accumulator;
+  flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
+  temp = (temp >> 15) & 0x1;
+  if (!temp || flag)
     {
       printf ("+");
     }
   else
     {
       printf ("-");
-      temp *= (-1);
     }
-  printf ("%.4X", temp);
+  printf ("%.2X", command);
+  printf ("%.2X", operand);
 
   mt_gotoXY (1, 69);
   printf (" accumulator ");
@@ -88,21 +96,22 @@ print_instructionCounter (int position)
 int
 print_operation (int position)
 {
-  operation = RAM[position];
-  int command = 0, operand = 0;
-  sc_commandDecode (operation, &command, &operand);
+  error (sc_memoryGet (position, &operation));
+  int command = 0, operand = 0, flag = 0;
 
   bc_box (7, 65, 3, 22);
   mt_gotoXY (8, 72);
 
-  if (command >= 0)
+  int temp = operation;
+  flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
+  temp = (temp >> 15) & 0x1;
+  if (!temp || flag)
     {
       printf ("+");
     }
   else
     {
       printf ("-");
-      command *= (-1);
     }
   printf ("%.2X : ", command);
   printf ("%.2X", operand);
@@ -121,7 +130,7 @@ print_flags (void)
 
   int temp = 0;
 
-  if (!sc_regGet (P, &temp) && temp)
+  if (!error (sc_regGet (P, &temp)) && temp)
     {
       mt_setfgcolor (cl_red);
       printf ("P ");
@@ -134,7 +143,7 @@ print_flags (void)
       mt_setfgcolor (cl_default);
     }
 
-  if (!sc_regGet (O, &temp) && temp)
+  if (!error (sc_regGet (O, &temp)) && temp)
     {
       mt_setfgcolor (cl_red);
       printf ("O ");
@@ -147,7 +156,7 @@ print_flags (void)
       mt_setfgcolor (cl_default);
     }
 
-  if (!sc_regGet (M, &temp) && temp)
+  if (!error (sc_regGet (M, &temp)) && temp)
     {
       mt_setfgcolor (cl_red);
       printf ("M ");
@@ -160,7 +169,7 @@ print_flags (void)
       mt_setfgcolor (cl_default);
     }
 
-  if (!sc_regGet (T, &temp) && temp)
+  if (!error (sc_regGet (T, &temp)) && temp)
     {
       mt_setfgcolor (cl_red);
       printf ("T ");
@@ -173,7 +182,7 @@ print_flags (void)
       mt_setfgcolor (cl_default);
     }
 
-  if (!sc_regGet (E, &temp) && temp)
+  if (!error (sc_regGet (E, &temp)) && temp)
     {
       mt_setfgcolor (cl_red);
       printf ("E ");
@@ -219,12 +228,12 @@ print_keys (void)
 }
 
 int
-print_big_accumulator (void)
+print_big_accumulator (int position)
 {
   bc_box (13, 1, 10, 48);
   int temp = 0, flag = 0, command = 0, operand = 0;
-  sc_memoryGet(0, &temp);
-  flag = sc_commandDecode (temp & 0x3FFF, &command, &operand);
+  error (sc_memoryGet (position, &temp));
+  flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
   temp = (temp >> 15) & 0x1;
   if (!temp || flag)
     {
@@ -234,7 +243,7 @@ print_big_accumulator (void)
     {
       bc_printbigchar (BigC[17], 14, 3, cl_default, cl_default);
     }
-//printf("%x   %x", command, operand);
+  // printf("%x   %x", command, operand);
   bc_printbigchar (BigC[operand % 16], 14, 39, cl_default, cl_default);
   operand /= 16;
   bc_printbigchar (BigC[operand % 16], 14, 30, cl_default, cl_default);
@@ -258,9 +267,44 @@ interface (void)
   print_instructionCounter (position);
   print_operation (position);
   print_flags ();
-  print_big_accumulator ();
+  print_big_accumulator (position);
   print_keys ();
-  mt_gotoXY (24, 0);
+  mt_gotoXY (error_xy + 1, 0);
 
   return 0;
+}
+
+int
+error (int value)
+{
+  if (value != 0)
+    {
+
+      int temp = value * (-1) - 1;
+      mt_gotoXY (error_xy++, 0);
+      printf ("%s", ERROR[temp]);
+
+      if (temp == 0)
+        {
+          sc_regSet (P, 1);
+        }
+      else if (temp == 1)
+        {
+          sc_regSet (O, 1);
+        }
+      else if (temp == 2)
+        {
+          sc_regSet (M, 1);
+        }
+      else if (temp == 3)
+        {
+          sc_regSet (T, 1);
+        }
+      else if (temp == 4)
+        {
+          sc_regSet (E, 1);
+        }
+    }
+
+  return value;
 }

@@ -21,8 +21,7 @@ bc_printA (char *str)
 {
   if (!str)
     {
-      sc_regSet (E, 1);
-      return -1;
+      return -5;
     }
 
   printf (ENTER_ALT_CHARSER_MODE);
@@ -68,8 +67,7 @@ bc_printbigchar (int BC[2], int x, int y, enum colors cl1, enum colors cl2)
 {
   if (!BC)
     {
-      sc_regSet (E, 1);
-      return -1;
+      return -5;
     }
 
   mt_setfgcolor (cl1);
@@ -157,8 +155,7 @@ bc_setbigcharpos (int *big, int x, int y, int value)
 {
   if ((value != 0 && value != 1) || x < 1 || x > 8 || y < 1 || y > 8)
     {
-      sc_regSet (E, 1);
-      return -1;
+      return -5;
     }
 
   if (x < 5)
@@ -192,8 +189,7 @@ bc_getbigcharpos (int *big, int x, int y, int *value)
 {
   if (x < 1 || x > 8 || y < 1 || y > 8)
     {
-      sc_regSet (E, 1);
-      return -1;
+      return -5;
     }
 
   if (x < 5)
@@ -212,8 +208,7 @@ bc_bigcharwrite (int fd, int *big, int count)
 {
   if (count < 1 || !big)
     {
-      sc_regSet (E, 1);
-      return -1;
+      return -5;
     }
 
   write (fd, big, count * sizeof (int) * 2);
@@ -225,8 +220,7 @@ bc_bigcharread (int fd, int *big, int need_count, int *count)
 {
   if (need_count < 1 || !big)
     {
-      sc_regSet (E, 1);
-      return -1;
+      return -5;
     }
 
   *count = read (fd, big, need_count * sizeof (int) * 2);

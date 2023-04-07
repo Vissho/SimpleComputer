@@ -24,7 +24,7 @@ sc_memoryInit (void)
       sc_memorySet (i, 0);
       if (RAM[i] != 0)
         {
-          return -1;
+          return -5;
         }
     }
 
@@ -40,8 +40,7 @@ sc_memorySet (int address, int value)
     }
   else
     {
-      sc_regSet (M, 1);
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -56,8 +55,7 @@ sc_memoryGet (int address, int *value)
     }
   else
     {
-      sc_regSet (M, 1);
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -68,7 +66,7 @@ sc_memorySave (char *filename)
 {
   if (!filename)
     {
-      return -1;
+      return -5;
     }
 
   FILE *fp;
@@ -77,7 +75,7 @@ sc_memorySave (char *filename)
   if (!fp)
     {
       fclose (fp);
-      return -1;
+      return -5;
     }
 
   for (int i = 0; i < SIZE; ++i)
@@ -92,7 +90,7 @@ sc_memoryLoad (char *filename)
 {
   if (!filename)
     {
-      return -1;
+      return -5;
     }
 
   FILE *fp;
@@ -101,7 +99,7 @@ sc_memoryLoad (char *filename)
   if (!fp)
     {
       fclose (fp);
-      return -1;
+      return -5;
     }
 
   for (int i = 0; i < SIZE; ++i)
@@ -134,7 +132,7 @@ sc_regSet (int Register, int value)
     }
   else
     {
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -149,8 +147,7 @@ sc_regGet (int Register, int *value)
     }
   else
     {
-      sc_regSet (M, 1);
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -165,7 +162,7 @@ sc_commandEncode (int command, int operand, int *value)
     }
   else
     {
-      return -1;
+      return -3;
     }
 
   return 0;
@@ -181,8 +178,7 @@ sc_commandDecode (int value, int *command, int *operand)
     }
   else
     {
-      //sc_regSet (E, 1);
-      return -1;
+      return -5;
     }
 
   return 0;
