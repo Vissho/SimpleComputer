@@ -1,9 +1,9 @@
 #include <interface.h>
 #include <myBigChars.h>
+#include <myReadkey.h>
 #include <mySimpleComputer.h>
 #include <myTerm.h>
 #include <stdlib.h>
-#include <myReadkey.h>
 #include <termios.h>
 
 static int accumulator = 0;
@@ -274,10 +274,10 @@ interface (void)
   mt_gotoXY (error_xy + 1, 0);
 
   enum keys k;
-  error(rk_readkey(&k));
-  printf("%d\n", k);
-  error(rk_mytermsave());
-  error(rk_mytermrestore());
+  error (rk_readkey (&k));
+  printf ("%d\n", k);
+  error (rk_mytermsave ());
+  error (rk_mytermrestore ());
 
   return 0;
 }

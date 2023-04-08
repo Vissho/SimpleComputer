@@ -25,6 +25,8 @@ enum keys
 #define RIGHT_KEY "\E[C"
 #define ENTER_KEY "\n"
 
+extern struct termios tsaved;
+
 int rk_readkey (enum keys *k);
 int rk_mytermsave (void);
 int rk_mytermrestore (void);

@@ -1,7 +1,7 @@
 #include <myReadkey.h>
-#include <unistd.h>
 #include <string.h>
 #include <termios.h>
+#include <unistd.h>
 
 static int N = 16;
 struct termios tsaved;
@@ -10,9 +10,10 @@ int
 rk_readkey (enum keys *k)
 {
   char str[N];
-  if ((read (0, str, N)) == -1){
-    return -5;
-  }
+  if ((read (0, str, N)) == -1)
+    {
+      return -5;
+    }
 
   if (str[0] == 'l')
     {
@@ -34,7 +35,7 @@ rk_readkey (enum keys *k)
     {
       *k = RESET;
     }
-  else if (strcmp(str, F5_KEY) == 0)
+  else if (strcmp (str, F5_KEY) == 0)
     {
       *k = F5;
     }
@@ -70,6 +71,22 @@ rk_readkey (enum keys *k)
   return 0;
 }
 
-int rk_mytermsave (void);
-int rk_mytermrestore (void);
+int
+rk_mytermsave (void)
+{
+  if (tcgetattr (0, &tsaved))
+    return -5;
+
+  return 0;
+}
+
+int
+rk_mytermrestore (void)
+{
+  if (tcsetattr (0, TCSADRAIN, &tsaved))
+    return -5;
+
+  return 0;
+}
+
 int rk_mytermregime (int regime, int vtime, int vmin, int echo, int sigint);
