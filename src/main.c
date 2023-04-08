@@ -5,11 +5,9 @@
 int
 main ()
 {
-  // fd = open ("/dev/tty", O_WRONLY);
   if (!isatty (0) || !isatty (1))
     {
       fprintf (stderr, "Ошибка открытия терминала.\n");
-      // close (fd);
       return -1;
     }
 
@@ -32,6 +30,5 @@ main ()
 
   interface ();
 
-  close (fd);
   return 0;
 }

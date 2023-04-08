@@ -17,6 +17,14 @@ enum keys
   OTHER
 };
 
+#define F5_KEY "\E[15~"
+#define F6_KEY "\E[17~"
+#define DOWN_KEY "\E[B"
+#define UP_KEY "\E[A"
+#define LEFT_KEY "\E[D"
+#define RIGHT_KEY "\E[C"
+#define ENTER_KEY "\n"
+
 int rk_readkey (enum keys *k);
 int rk_mytermsave (void);
 int rk_mytermrestore (void);

@@ -3,6 +3,8 @@
 #include <mySimpleComputer.h>
 #include <myTerm.h>
 #include <stdlib.h>
+#include <myReadkey.h>
+#include <termios.h>
 
 static int accumulator = 0;
 static int instruction_counter = 0;
@@ -270,6 +272,12 @@ interface (void)
   print_big_accumulator (position);
   print_keys ();
   mt_gotoXY (error_xy + 1, 0);
+
+  enum keys k;
+  error(rk_readkey(&k));
+  printf("%d\n", k);
+  error(rk_mytermsave());
+  error(rk_mytermrestore());
 
   return 0;
 }
