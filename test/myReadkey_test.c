@@ -23,6 +23,6 @@ CTEST (rk_mytermrestore, correctly_rk_mytermrestore)
 
 CTEST (rk_mytermregime, correctly_rk_mytermregime)
 {
-  int flag = rk_mytermregime (1, 0 , 0, 1, 1);
+  int flag = rk_mytermregime (1, 0, 0, 1, 1);
   ASSERT_EQUAL (0, flag);
 }

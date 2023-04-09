@@ -1,18 +1,23 @@
 #include <myReadkey.h>
+#include <stdio.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
-#include <stdio.h>
 
 static int N = 16;
 struct termios tsaved;
 
 int
-rk_readkey (enum keys *k) 
+rk_readkey (enum keys *k)
 {
+  if (rk_mytermsave ())
+    return -5;
+
+  if (rk_mytermregime (0, 0, 0, 0, 1))
+    return -5;
+
   char str[N];
-  str[0] = '\0';
-  if (read (0, str, N) == -1)
+  if (read (0, str, sizeof (str)) == -1)
     return -5;
 
   if (str[0] == 'l')
@@ -35,31 +40,31 @@ rk_readkey (enum keys *k)
     {
       *k = RESET;
     }
-  else if (strcmp (str, F5_KEY) == 0)
+  else if (strncmp (str, F5_KEY, 4) == 0)
     {
       *k = F5;
     }
-  else if (strcmp (str, F6_KEY) == 0)
+  else if (strncmp (str, F6_KEY, 4) == 0)
     {
       *k = F6;
     }
-  else if (strcmp (str, DOWN_KEY) == 0)
+  else if (strncmp (str, DOWN_KEY, 3) == 0)
     {
       *k = DOWN;
     }
-  else if (strcmp (str, UP_KEY) == 0)
+  else if (strncmp (str, UP_KEY, 3) == 0)
     {
       *k = UP;
     }
-  else if (strcmp (str, LEFT_KEY) == 0)
+  else if (strncmp (str, LEFT_KEY, 3) == 0)
     {
       *k = LEFT;
     }
-  else if (strcmp (str, RIGHT_KEY) == 0)
+  else if (strncmp (str, RIGHT_KEY, 3) == 0)
     {
       *k = RIGHT;
     }
-  else if (strcmp (str, ENTER_KEY) == 0)
+  else if (strncmp (str, ENTER_KEY, 1) == 0)
     {
       *k = ENTER;
     }
@@ -67,6 +72,9 @@ rk_readkey (enum keys *k)
     {
       *k = OTHER;
     }
+
+  if (rk_mytermrestore ())
+    return -5;
 
   return 0;
 }

@@ -261,7 +261,7 @@ interface (void)
 {
   setvbuf (stdout, NULL, _IONBF, 0);
   mt_clrscr ();
-  error(rk_mytermsave());
+  error (rk_mytermsave ());
 
   int position = 0;
 
