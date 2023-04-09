@@ -261,6 +261,7 @@ interface (void)
 {
   setvbuf (stdout, NULL, _IONBF, 0);
   mt_clrscr ();
+  error(rk_mytermsave());
 
   int position = 0;
 
@@ -274,10 +275,12 @@ interface (void)
   mt_gotoXY (error_xy + 1, 0);
 
   enum keys k;
-  error (rk_readkey (&k));
-  printf ("%d\n", k);
-  error (rk_mytermsave ());
-  error (rk_mytermrestore ());
+  while (k != 12)
+    {
+      error (rk_readkey (&k));
+      printf ("%d\n", k);
+      error(rk_mytermrestore());
+    }
 
   return 0;
 }

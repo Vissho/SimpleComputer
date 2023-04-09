@@ -2,18 +2,32 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
+#include <stdio.h>
 
 static int N = 16;
 struct termios tsaved;
 
 int
-rk_readkey (enum keys *k)
+rk_readkey (enum keys *k) 
 {
+  #if 1
   char str[N];
-  if ((read (0, str, N)) == -1)
-    {
-      return -5;
-    }
+  if (read (0, str, N) == -1)
+    return -5;
+  
+  if (rk_mytermregime(0, 0, 0, 1, 1))
+    return -5;
+  #endif
+
+  #if 0
+  if (rk_mytermregime(0, 0, 0, 1, 1))
+    return -5;
+
+  char str[N];
+  if (read (0, str, N) == -1)
+    return -5;
+  #endif
+
 
   if (str[0] == 'l')
     {
@@ -83,10 +97,77 @@ rk_mytermsave (void)
 int
 rk_mytermrestore (void)
 {
-  if (tcsetattr (0, TCSADRAIN, &tsaved))
+  if (tcsetattr (0, TCSANOW, &tsaved))
     return -5;
 
   return 0;
 }
 
-int rk_mytermregime (int regime, int vtime, int vmin, int echo, int sigint);
+int
+rk_mytermregime (int regime, int vtime, int vmin, int echo, int sigint)
+{
+  struct termios temp;
+
+  if (tcgetattr (0, &temp))
+    return -5;
+
+  if (regime == 1)
+    {
+      temp.c_lflag |= ICANON;
+    }
+  else if (regime == 0)
+    {
+      temp.c_lflag &= ~ICANON;
+    }
+  else
+    {
+      return -5;
+    }
+
+  if (vtime == 1)
+    {
+      temp.c_lflag |= VTIME;
+    }
+  else if (vtime == 0)
+    {
+      temp.c_lflag &= ~VTIME;
+    }
+  else
+    {
+      return -5;
+    }
+
+  if (vmin == 1)
+    temp.c_lflag |= VMIN;
+  else if (vmin == 0)
+    {
+      temp.c_lflag &= ~VMIN;
+    }
+  else
+    {
+      return -5;
+    }
+
+  if (echo == 1)
+    temp.c_lflag |= ECHO;
+  else if (echo == 0)
+    temp.c_lflag &= ~ECHO;
+  else
+    {
+      return -5;
+    }
+
+  if (sigint == 1)
+    temp.c_lflag |= ISIG;
+  else if (sigint == 0)
+    temp.c_lflag &= ~ISIG;
+  else
+    {
+      return -5;
+    }
+
+  if (tcsetattr (0, TCSANOW, &temp))
+    return -5;
+
+  return 0;
+}
