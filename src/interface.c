@@ -279,7 +279,6 @@ interface (void)
     {
       error (rk_readkey (&k));
       printf ("%d\n", k);
-      error(rk_mytermrestore());
     }
 
   return 0;

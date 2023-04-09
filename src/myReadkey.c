@@ -10,24 +10,10 @@ struct termios tsaved;
 int
 rk_readkey (enum keys *k) 
 {
-  #if 1
   char str[N];
+  str[0] = '\0';
   if (read (0, str, N) == -1)
     return -5;
-  
-  if (rk_mytermregime(0, 0, 0, 1, 1))
-    return -5;
-  #endif
-
-  #if 0
-  if (rk_mytermregime(0, 0, 0, 1, 1))
-    return -5;
-
-  char str[N];
-  if (read (0, str, N) == -1)
-    return -5;
-  #endif
-
 
   if (str[0] == 'l')
     {

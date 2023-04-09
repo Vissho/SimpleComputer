@@ -27,7 +27,7 @@ myReadkey.a: src/myReadkey.c
 	ar r myReadkey.a myReadkey.o
 
 .PHONY: test
-test: mySimpleComputer_test myTerm_test myBigChars_test
+test: mySimpleComputer_test myTerm_test myBigChars_test myReadkey_test
 
 mySimpleComputer_test: test/main.c test/mySimpleComputer_test.c mySimpleComputer.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
@@ -38,7 +38,7 @@ myTerm_test: test/main.c test/myTerm_test.c myTerm.a
 myBigChars_test: test/main.c test/myBigChars_test.c myBigChars.a  mySimpleComputer.a myTerm.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
-myReadkey_test: test/main.c test/myReadkey_test.c myReadkey.a  mySimpleComputer.a myTerm.a
+myReadkey_test: test/main.c test/myReadkey_test.c myReadkey.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
 .PHONY: clean
