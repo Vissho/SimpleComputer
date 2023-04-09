@@ -74,7 +74,6 @@ sc_memorySave (char *filename)
 
   if (!fp)
     {
-      fclose (fp);
       return -5;
     }
 
@@ -98,7 +97,6 @@ sc_memoryLoad (char *filename)
 
   if (!fp)
     {
-      fclose (fp);
       return -5;
     }
 
