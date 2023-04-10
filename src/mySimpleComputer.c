@@ -1,4 +1,3 @@
-#include <limits.h>
 #include <mySimpleComputer.h>
 
 int RAM[SIZE];
@@ -34,7 +33,7 @@ sc_memoryInit (void)
 int
 sc_memorySet (int address, int value)
 {
-  if (address < SIZE && address >= 0 && value < INT_MAX && value > INT_MIN)
+  if (address < SIZE && address >= 0 && value <= 32767 && value >= -32767)
     {
       RAM[address] = value;
     }

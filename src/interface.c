@@ -36,7 +36,7 @@ print_memory (void)
           command = 0, operand = 0, flag = 0;
           error (sc_memoryGet (i * 10 + j, &temp));
           flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
-          temp = (temp >> 15) & 0x1;
+          temp = (temp >> 14) & 0x1;
           if (!temp || flag)
             {
               printf ("+");
@@ -71,7 +71,7 @@ print_accumulator (void)
 
   temp = accumulator;
   flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
-  temp = (temp >> 15) & 0x1;
+  temp = (temp >> 14) & 0x1;
   if (!temp || flag)
     {
       printf ("+");
@@ -93,8 +93,8 @@ print_accumulator (void)
 int
 print_instructionCounter (void)
 {
-  if (flag_F6 == 1)
-    instruction_counter = position;
+  // if (flag_F6 == 1)
+  // instruction_counter = position;
   bc_box (4, 65, 3, 22);
   mt_gotoXY (5, 73);
 
@@ -121,7 +121,7 @@ print_operation (void)
 
   int temp = operation;
   flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
-  temp = (temp >> 15) & 0x1;
+  temp = (temp >> 14) & 0x1;
   if (!temp || flag)
     {
       printf ("+");
@@ -251,7 +251,7 @@ print_big_accumulator (void)
   int temp = 0, flag = 0, command = 0, operand = 0;
   error (sc_memoryGet (position, &temp));
   flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
-  temp = (temp >> 15) & 0x1;
+  temp = (temp >> 14) & 0x1;
   if (!temp || flag)
     {
       bc_printbigchar (BigC[16], 14, 3, cl_default, cl_default);
@@ -313,7 +313,7 @@ clear_position (int position)
 
   error (sc_memoryGet (position, &temp));
   flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
-  temp = (temp >> 15) & 0x1;
+  temp = (temp >> 14) & 0x1;
   mt_setbgcolor (cl_default);
   mt_gotoXY (position / 10 + 2, position % 10 * 6 + 3);
   if (!temp || flag)
@@ -345,7 +345,7 @@ print_position (void)
 
   error (sc_memoryGet (position, &temp));
   flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
-  temp = (temp >> 15) & 0x1;
+  temp = (temp >> 14) & 0x1;
   mt_setbgcolor (cl_blue);
   mt_gotoXY (position / 10 + 2, position % 10 * 6 + 3);
   if (!temp || flag)
@@ -427,6 +427,11 @@ analysis_k (enum keys k)
       mt_gotoXY (error_xy++ + 1, 0);
       printf ("Введите значение: ");
       scanf ("%d", &value);
+      if (value < 0)
+        {
+          value = value * (-1);
+          value = value | 0x4000;
+        }
       if (flag_F5 == -1)
         {
           accumulator = value;
