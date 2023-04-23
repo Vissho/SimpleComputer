@@ -6,7 +6,6 @@
 #include <unistd.h>
 
 #define N 200
-extern int fd;
 
 enum colors
 {

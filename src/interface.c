@@ -3,11 +3,18 @@
 #include <mySimpleComputer.h>
 #include <myTerm.h>
 #include <stdlib.h>
+#include <string.h>
+#include <termios.h>
+#include <unistd.h>
 
 static int accumulator = 0;
 static int instruction_counter = 0;
 static int operation = 0;
 static int error_xy = 23;
+static int position = 0;
+static int prev_position = 0;
+static int flag_F5 = 1;
+static int flag_F6 = 1;
 
 static char *ERROR[5]
     = { "Переполнение при выполнении операции.", "Ошибка деления на 0.",
@@ -29,7 +36,7 @@ print_memory (void)
           command = 0, operand = 0, flag = 0;
           error (sc_memoryGet (i * 10 + j, &temp));
           flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
-          temp = (temp >> 15) & 0x1;
+          temp = (temp >> 14) & 0x1;
           if (!temp || flag)
             {
               printf ("+");
@@ -50,17 +57,21 @@ print_memory (void)
 }
 
 int
-print_accumulator (int position)
+print_accumulator (void)
 {
   int temp = 0, flag = 0, command = 0, operand = 0;
-  error (sc_memoryGet (position, &accumulator));
+  if (flag_F5 == 1)
+    error (sc_memoryGet (position, &accumulator));
 
   bc_box (1, 65, 3, 22);
   mt_gotoXY (2, 73);
 
+  if (flag_F5 == -1)
+    mt_setbgcolor (cl_blue);
+
   temp = accumulator;
   flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
-  temp = (temp >> 15) & 0x1;
+  temp = (temp >> 14) & 0x1;
   if (!temp || flag)
     {
       printf ("+");
@@ -73,28 +84,34 @@ print_accumulator (int position)
   printf ("%.2X", operand);
 
   mt_gotoXY (1, 69);
+  mt_setbgcolor (cl_default);
   printf (" accumulator ");
 
   return 0;
 }
 
 int
-print_instructionCounter (int position)
+print_instructionCounter (void)
 {
-  instruction_counter = position;
+  // if (flag_F6 == 1)
+  // instruction_counter = position;
   bc_box (4, 65, 3, 22);
   mt_gotoXY (5, 73);
+
+  if (flag_F6 == -1)
+    mt_setbgcolor (cl_blue);
 
   printf ("%+.4d", instruction_counter);
 
   mt_gotoXY (4, 66);
+  mt_setbgcolor (cl_default);
   printf (" instructionCounter ");
 
   return 0;
 }
 
 int
-print_operation (int position)
+print_operation (void)
 {
   error (sc_memoryGet (position, &operation));
   int command = 0, operand = 0, flag = 0;
@@ -104,7 +121,7 @@ print_operation (int position)
 
   int temp = operation;
   flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
-  temp = (temp >> 15) & 0x1;
+  temp = (temp >> 14) & 0x1;
   if (!temp || flag)
     {
       printf ("+");
@@ -228,13 +245,13 @@ print_keys (void)
 }
 
 int
-print_big_accumulator (int position)
+print_big_accumulator (void)
 {
   bc_box (13, 1, 10, 48);
   int temp = 0, flag = 0, command = 0, operand = 0;
   error (sc_memoryGet (position, &temp));
   flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
-  temp = (temp >> 15) & 0x1;
+  temp = (temp >> 14) & 0x1;
   if (!temp || flag)
     {
       bc_printbigchar (BigC[16], 14, 3, cl_default, cl_default);
@@ -255,33 +272,13 @@ print_big_accumulator (int position)
 }
 
 int
-interface (void)
-{
-  setvbuf (stdout, NULL, _IONBF, 0);
-  mt_clrscr ();
-
-  int position = 0;
-
-  print_memory ();
-  print_accumulator (position);
-  print_instructionCounter (position);
-  print_operation (position);
-  print_flags ();
-  print_big_accumulator (position);
-  print_keys ();
-  mt_gotoXY (error_xy + 1, 0);
-
-  return 0;
-}
-
-int
 error (int value)
 {
   if (value != 0)
     {
 
       int temp = value * (-1) - 1;
-      mt_gotoXY (error_xy++, 0);
+      mt_gotoXY (error_xy++ + 1, 0);
       printf ("%s", ERROR[temp]);
 
       if (temp == 0)
@@ -307,4 +304,182 @@ error (int value)
     }
 
   return value;
+}
+
+int
+clear_position (int position)
+{
+  int temp = 0, command = 0, operand = 0, flag = 0;
+
+  error (sc_memoryGet (position, &temp));
+  flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
+  temp = (temp >> 14) & 0x1;
+  mt_setbgcolor (cl_default);
+  mt_gotoXY (position / 10 + 2, position % 10 * 6 + 3);
+  if (!temp || flag)
+    {
+      printf ("+");
+    }
+  else
+    {
+      printf ("-");
+    }
+  printf ("%.2X", command);
+  printf ("%.2X", operand);
+
+  return 0;
+}
+
+int
+print_position (void)
+{
+  if (position > 99 || position < 0)
+    return -3;
+
+  if (flag_F5 == -1 || flag_F6 == -1)
+    return 0;
+
+  int temp = 0, command = 0, operand = 0, flag = 0;
+
+  clear_position (prev_position);
+
+  error (sc_memoryGet (position, &temp));
+  flag = error (sc_commandDecode (temp & 0x3FFF, &command, &operand));
+  temp = (temp >> 14) & 0x1;
+  mt_setbgcolor (cl_blue);
+  mt_gotoXY (position / 10 + 2, position % 10 * 6 + 3);
+  if (!temp || flag)
+    {
+      printf ("+");
+    }
+  else
+    {
+      printf ("-");
+    }
+  printf ("%.2X", command);
+  printf ("%.2X", operand);
+  mt_setbgcolor (cl_default);
+
+  prev_position = position;
+  return 0;
+}
+
+int
+analysis_k (enum keys k)
+{
+  if (k == 0 && flag_F5 != -1 && flag_F6 != -1)
+    {
+      char str[200];
+      mt_gotoXY (error_xy++ + 1, 0);
+      printf ("Введите название файла: ");
+      scanf ("%s", str);
+      strcat (str, ".bin");
+      error (sc_memoryLoad (str));
+    }
+  else if (k == 1 && flag_F5 != -1 && flag_F6 != -1)
+    {
+      char str[200];
+      mt_gotoXY (error_xy++ + 1, 0);
+      printf ("Введите название файла: ");
+      scanf ("%s", str);
+      strcat (str, ".bin");
+      error (sc_memorySave (str));
+    }
+  else if (k == 5 && flag_F6 != -1)
+    {
+      if (flag_F5 == 1)
+        {
+          clear_position (position);
+        }
+      flag_F5 *= (-1);
+    }
+  else if (k == 6 && flag_F5 != -1)
+    {
+      if (flag_F6 == 1)
+        {
+          clear_position (position);
+        }
+      flag_F6 *= (-1);
+    }
+  else if (k == 7 && flag_F5 != -1 && flag_F6 != -1)
+    {
+      if (position > 9)
+        position -= 10;
+    }
+  else if (k == 8 && flag_F5 != -1 && flag_F6 != -1)
+    {
+      if (position < 90)
+        position += 10;
+    }
+  else if (k == 9 && flag_F5 != -1 && flag_F6 != -1)
+    {
+      if (position % 10 != 0)
+        position -= 1;
+    }
+  else if (k == 10 && flag_F5 != -1 && flag_F6 != -1)
+    {
+      if (position % 10 != 9)
+        position += 1;
+    }
+  else if (k == 11)
+    {
+      int value = 0;
+      mt_gotoXY (error_xy++ + 1, 0);
+      printf ("Введите значение: ");
+      scanf ("%d", &value);
+      if (value < 0)
+        {
+          value = value * (-1);
+          value = value | 0x4000;
+        }
+      if (flag_F5 == -1)
+        {
+          accumulator = value;
+        }
+      else if (flag_F6 == -1)
+        {
+          if (value > 99 || value < 0)
+            return -5;
+          instruction_counter = value;
+        }
+      else
+        {
+          error (sc_memorySet (position, value));
+        }
+    }
+  else
+    {
+      return -5;
+    }
+
+  return 0;
+}
+
+int
+interface (void)
+{
+  setvbuf (stdout, NULL, _IONBF, 0);
+  mt_clrscr ();
+  error (rk_mytermsave ());
+
+  print_keys ();
+  mt_gotoXY (error_xy + 1, 0);
+
+  enum keys k;
+  do
+    {
+      print_memory ();
+      print_accumulator ();
+      print_instructionCounter ();
+      print_operation ();
+      print_flags ();
+      print_big_accumulator ();
+      error (print_position ());
+      error (rk_readkey (&k));
+      error (analysis_k (k));
+    }
+  while (k != 12);
+  mt_gotoXY (error_xy + 1, 0);
+
+  return 0;
 }

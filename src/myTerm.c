@@ -1,12 +1,10 @@
 #include <myTerm.h>
 #include <stdio.h>
 
-int fd;
-
 int
 mt_clrscr (void)
 {
-  write (fd, "\E[H\E[J", 7);
+  write (0, "\E[H\E[J", 7);
 
   return 0;
 }
@@ -19,7 +17,7 @@ mt_gotoXY (int x, int y)
 
   size = sprintf (str, "\E[%d;%dH", x, y);
 
-  write (fd, str, size);
+  write (0, str, size);
 
   return 0;
 }
@@ -49,7 +47,7 @@ mt_setfgcolor (enum colors cl)
   int size = 0;
 
   size = sprintf (str, "\E[3%dm", cl);
-  write (fd, str, size);
+  write (0, str, size);
 
   return 0;
 }
@@ -61,7 +59,7 @@ mt_setbgcolor (enum colors cl)
   int size = 0;
 
   size = sprintf (str, "\E[4%dm", cl);
-  write (fd, str, size);
+  write (0, str, size);
 
   return 0;
 }
