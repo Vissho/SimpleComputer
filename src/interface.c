@@ -1,5 +1,6 @@
 #include <interface.h>
 #include <myBigChars.h>
+#include <mySignal.h>
 #include <mySimpleComputer.h>
 #include <myTerm.h>
 #include <stdlib.h>
@@ -7,14 +8,16 @@
 #include <termios.h>
 #include <unistd.h>
 
+int instruction_counter = 0;
 static int accumulator = 0;
-static int instruction_counter = 0;
 static int operation = 0;
 static int error_xy = 23;
 static int position = 0;
 static int prev_position = 0;
 static int flag_F5 = 1;
 static int flag_F6 = 1;
+static int flag_RUN = 0;
+static int flag_STEP = 0;
 
 static char *ERROR[5]
     = { "Переполнение при выполнении операции.", "Ошибка деления на 0.",
@@ -93,8 +96,6 @@ print_accumulator (void)
 int
 print_instructionCounter (void)
 {
-  // if (flag_F6 == 1)
-  // instruction_counter = position;
   bc_box (4, 65, 3, 22);
   mt_gotoXY (5, 73);
 
@@ -367,7 +368,7 @@ print_position (void)
 int
 analysis_k (enum keys k)
 {
-  if (k == 0 && flag_F5 != -1 && flag_F6 != -1)
+  if (k == 0 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN && flag_STEP)
     {
       char str[200];
       mt_gotoXY (error_xy++ + 1, 0);
@@ -375,8 +376,10 @@ analysis_k (enum keys k)
       scanf ("%s", str);
       strcat (str, ".bin");
       error (sc_memoryLoad (str));
+      instruction_counter++;
+      flag_STEP--;
     }
-  else if (k == 1 && flag_F5 != -1 && flag_F6 != -1)
+  else if (k == 1 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN && flag_STEP)
     {
       char str[200];
       mt_gotoXY (error_xy++ + 1, 0);
@@ -384,44 +387,87 @@ analysis_k (enum keys k)
       scanf ("%s", str);
       strcat (str, ".bin");
       error (sc_memorySave (str));
+      instruction_counter++;
+      flag_STEP--;
     }
-  else if (k == 5 && flag_F6 != -1)
+  else if (k == 2 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
+    {
+      flag_RUN = 1;
+      sc_regSet (T, 1);
+      instruction_counter++;
+    }
+  else if (k == 3 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
+    {
+      stop_timer ();
+      flag_STEP = 2;
+      instruction_counter++;
+    }
+  else if (k == 4 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
+    {
+      error (source ());
+      flag_RUN = 0;
+      sc_regInit ();
+      sc_memoryInit ();
+      instruction_counter = 0;
+      accumulator = 0;
+      operation = 0;
+      position = 0;
+      prev_position = 0;
+      flag_STEP = 0;
+    }
+  else if (k == 5 && flag_F6 != -1 && flag_RUN && flag_STEP)
     {
       if (flag_F5 == 1)
         {
           clear_position (position);
         }
       flag_F5 *= (-1);
+      instruction_counter++;
+      flag_STEP = 3;
     }
-  else if (k == 6 && flag_F5 != -1)
+  else if (k == 6 && flag_F5 != -1 && flag_RUN && flag_STEP)
     {
       if (flag_F6 == 1)
         {
           clear_position (position);
         }
       flag_F6 *= (-1);
+      instruction_counter++;
+      flag_STEP = 4;
     }
-  else if (k == 7 && flag_F5 != -1 && flag_F6 != -1)
+  else if (k == 7 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
     {
       if (position > 9)
-        position -= 10;
+        {
+          position -= 10;
+          instruction_counter++;
+        }
     }
-  else if (k == 8 && flag_F5 != -1 && flag_F6 != -1)
+  else if (k == 8 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
     {
       if (position < 90)
-        position += 10;
+        {
+          position += 10;
+          instruction_counter++;
+        }
     }
-  else if (k == 9 && flag_F5 != -1 && flag_F6 != -1)
+  else if (k == 9 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
     {
       if (position % 10 != 0)
-        position -= 1;
+        {
+          position -= 1;
+          instruction_counter++;
+        }
     }
-  else if (k == 10 && flag_F5 != -1 && flag_F6 != -1)
+  else if (k == 10 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
     {
       if (position % 10 != 9)
-        position += 1;
+        {
+          position += 1;
+          instruction_counter++;
+        }
     }
-  else if (k == 11)
+  else if (k == 11 && flag_RUN && flag_STEP)
     {
       int value = 0;
       mt_gotoXY (error_xy++ + 1, 0);
@@ -445,12 +491,39 @@ analysis_k (enum keys k)
       else
         {
           error (sc_memorySet (position, value));
+          flag_STEP--;
         }
+      instruction_counter++;
     }
   else
     {
       return -5;
     }
+
+  if ((flag_STEP == 3 && flag_F5 == 1) || (flag_STEP == 4 && flag_F6 == 1))
+    {
+      flag_STEP = 1;
+    }
+
+  if (flag_STEP == 1)
+    {
+      flag_STEP = 0;
+      reboot ();
+    }
+
+  return 0;
+}
+
+int
+print_all (void)
+{
+  print_memory ();
+  print_accumulator ();
+  print_instructionCounter ();
+  print_operation ();
+  print_flags ();
+  print_big_accumulator ();
+  error (print_position ());
 
   return 0;
 }
@@ -468,15 +541,11 @@ interface (void)
   enum keys k;
   do
     {
-      print_memory ();
-      print_accumulator ();
-      print_instructionCounter ();
-      print_operation ();
-      print_flags ();
-      print_big_accumulator ();
-      error (print_position ());
+      print_all ();
       error (rk_readkey (&k));
       error (analysis_k (k));
+      if (k == 2)
+        error (timer ());
     }
   while (k != 12);
   mt_gotoXY (error_xy + 1, 0);

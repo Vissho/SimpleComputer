@@ -7,7 +7,7 @@ LIBS = -I include/ -I thirdparty/
 
 all: mySimpleComputer test
 
-mySimpleComputer: src/main.c src/interface.c mySimpleComputer.a myTerm.a myBigChars.a myReadkey.a
+mySimpleComputer: src/main.c src/interface.c mySimpleComputer.a myTerm.a myBigChars.a myReadkey.a mySignal.a
 	$(CC) $(CFLAGS) $(LIBS) -o $@ -L. $^
 
 mySimpleComputer.a: src/mySimpleComputer.c
@@ -25,6 +25,10 @@ myBigChars.a: src/myBigChars.c
 myReadkey.a: src/myReadkey.c
 	$(CC) $(CFLAGS) $(LIBS) -c $^
 	ar r myReadkey.a myReadkey.o
+
+mySignal.a: src/mySignal.c
+	$(CC) $(CFLAGS) $(LIBS) -c $^
+	ar r mySignal.a mySignal.o
 
 .PHONY: test
 test: mySimpleComputer_test myTerm_test myBigChars_test myReadkey_test
