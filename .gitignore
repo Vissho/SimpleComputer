@@ -56,11 +56,3 @@ dkms.conf
 
 *.bin
 *.txt
-
-main
-a.out
-mySimpleComputer
-mySimpleComputer_test
-myTerm_test
-myBigChars_test
-myReadkey_test
