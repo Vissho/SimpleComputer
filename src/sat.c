@@ -1,10 +1,10 @@
+#include <ctype.h>
+#include <math.h>
 #include <mySimpleComputer.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-#include <ctype.h>
 
 #define MEMORY_SIZE 100
 #define ERROR_CODE -1

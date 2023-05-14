@@ -367,7 +367,7 @@ int
 analysis_k (enum keys k)
 {
   int flag_T = 0;
-  sc_regGet(T, &flag_T);
+  sc_regGet (T, &flag_T);
   if (k == 0 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN && !flag_T)
     {
       char str[200];
