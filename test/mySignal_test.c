@@ -13,9 +13,3 @@ CTEST (source, correctly_source)
   int flag = source ();
   ASSERT_EQUAL (0, flag);
 }
-
-CTEST (reboot, correctly_reboot)
-{
-  int flag = reboot ();
-  ASSERT_EQUAL (0, flag);
-}

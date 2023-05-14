@@ -4,18 +4,6 @@ int RAM[SIZE];
 int REGISTER;
 
 int
-print_bites (int key)
-{
-  for (int i = 31; i > 0; --i)
-    {
-      printf ("%d", (key >> (i - 1)) & 0x1);
-    }
-  printf ("\n");
-
-  return 0;
-}
-
-int
 sc_memoryInit (void)
 {
   for (int i = 0; i < SIZE; ++i)

@@ -7,7 +7,7 @@ LIBS = -I include/ -I thirdparty/
 
 all: mySimpleComputer.out test
 
-mySimpleComputer.out: src/main.c src/interface.c mySimpleComputer.a myTerm.a myBigChars.a myReadkey.a mySignal.a
+mySimpleComputer.out: src/main.c src/interface.c mySimpleComputer.a myTerm.a myBigChars.a myReadkey.a mySignal.a myCU.a myALU.a
 	$(CC) $(CFLAGS) $(LIBS) -o $@ -L. $^
 
 mySimpleComputer.a: src/mySimpleComputer.c
@@ -30,6 +30,14 @@ mySignal.a: src/mySignal.c
 	$(CC) $(CFLAGS) $(LIBS) -c $^
 	ar r mySignal.a mySignal.o
 
+myALU.a: src/myALU.c
+	$(CC) $(CFLAGS) $(LIBS) -c $^
+	ar r myALU.a myALU.o
+
+myCU.a: src/myCU.c
+	$(CC) $(CFLAGS) $(LIBS) -c $^
+	ar r myCU.a myCU.o
+
 .PHONY: test
 test: mySimpleComputer_test.out myTerm_test.out myBigChars_test.out myReadkey_test.out mySignal_test.out
 
@@ -45,7 +53,7 @@ myBigChars_test.out: test/main.c test/myBigChars_test.c myBigChars.a  mySimpleCo
 myReadkey_test.out: test/main.c test/myReadkey_test.c myReadkey.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
-mySignal_test.out: test/main.c test/mySignal_test.c src/interface.c mySignal.a myBigChars.a  mySimpleComputer.a myTerm.a myReadkey.a
+mySignal_test.out: test/main.c test/mySignal_test.c src/interface.c mySignal.a myBigChars.a  mySimpleComputer.a myTerm.a myReadkey.a myCU.a myALU.a
 	$(CC) $(CFLAGS) $(LIBS)  -o $@ -L. $^
 
 .PHONY: clean

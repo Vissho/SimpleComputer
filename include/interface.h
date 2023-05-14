@@ -14,4 +14,6 @@ int clear_position (int position);
 int print_position (void);
 int analysis_k (enum keys k);
 int print_all (void);
+int clear_space (void);
+int print_bites (int key);
 int interface (void);

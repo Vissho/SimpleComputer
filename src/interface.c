@@ -1,5 +1,7 @@
 #include <interface.h>
+#include <myALU.h>
 #include <myBigChars.h>
+#include <myCU.h>
 #include <mySignal.h>
 #include <mySimpleComputer.h>
 #include <myTerm.h>
@@ -9,20 +11,18 @@
 #include <unistd.h>
 
 int instruction_counter = 0;
-static int accumulator = 0;
+static int instruction_counter_old = 0;
+int accumulator = 0;
 static int operation = 0;
-static int error_xy = 23;
-static int position = 0;
-static int prev_position = 0;
+int position = 0;
+int prev_position = 0;
 static int flag_F5 = 1;
 static int flag_F6 = 1;
-static int flag_RUN = 0;
-static int flag_STEP = 0;
-
-static char *ERROR[5]
-    = { "Переполнение при выполнении операции.", "Ошибка деления на 0.",
-        "Ошибка выхода за границы памяти", "Игнорирование тактовых импульсов.",
-        "Указана неверная команда." };
+int flag_RUN = 0;
+char empty[] = "                                                              "
+               "                                                              "
+               "                                   ";
+static struct winsize ws;
 
 int
 print_memory (void)
@@ -63,8 +63,6 @@ int
 print_accumulator (void)
 {
   int temp = 0, flag = 0, command = 0, operand = 0;
-  if (flag_F5 == 1)
-    error (sc_memoryGet (position, &accumulator));
 
   bc_box (1, 65, 3, 22);
   mt_gotoXY (2, 73);
@@ -78,13 +76,15 @@ print_accumulator (void)
   if (!temp || flag)
     {
       printf ("+");
+      temp = accumulator;
     }
   else
     {
       printf ("-");
+      temp = accumulator;
+      temp &= 0x3fff;
     }
-  printf ("%.2X", command);
-  printf ("%.2X", operand);
+  printf ("%.4X", temp);
 
   mt_gotoXY (1, 69);
   mt_setbgcolor (cl_default);
@@ -102,7 +102,7 @@ print_instructionCounter (void)
   if (flag_F6 == -1)
     mt_setbgcolor (cl_blue);
 
-  printf ("%+.4d", instruction_counter);
+  printf ("+%.4X", instruction_counter);
 
   mt_gotoXY (4, 66);
   mt_setbgcolor (cl_default);
@@ -279,8 +279,6 @@ error (int value)
     {
 
       int temp = value * (-1) - 1;
-      mt_gotoXY (error_xy++ + 1, 0);
-      printf ("%s", ERROR[temp]);
 
       if (temp == 0)
         {
@@ -368,41 +366,45 @@ print_position (void)
 int
 analysis_k (enum keys k)
 {
-  if (k == 0 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN && flag_STEP)
+  if (k == 0 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
     {
       char str[200];
-      mt_gotoXY (error_xy++ + 1, 0);
+      mt_gotoXY (24, 0);
+      printf ("%s", empty);
+      mt_gotoXY (24, 0);
       printf ("Введите название файла: ");
       scanf ("%s", str);
-      strcat (str, ".bin");
       error (sc_memoryLoad (str));
-      instruction_counter++;
-      flag_STEP--;
     }
-  else if (k == 1 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN && flag_STEP)
+  else if (k == 1 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
     {
       char str[200];
-      mt_gotoXY (error_xy++ + 1, 0);
+      mt_gotoXY (24, 0);
+      printf ("%s", empty);
+      mt_gotoXY (24, 0);
       printf ("Введите название файла: ");
       scanf ("%s", str);
-      strcat (str, ".bin");
       error (sc_memorySave (str));
-      instruction_counter++;
-      flag_STEP--;
     }
-  else if (k == 2 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
+  else if (k == 2 && flag_F5 != -1 && flag_F6 != -1)
     {
       flag_RUN = 1;
       sc_regSet (T, 1);
-      instruction_counter++;
+      error (timer ());
     }
-  else if (k == 3 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
+  else if (k == 3 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
     {
-      stop_timer ();
-      flag_STEP = 2;
-      instruction_counter++;
+      instruction_counter_old = instruction_counter;
+      if (!CU ())
+        {
+          if (instruction_counter_old == instruction_counter)
+            instruction_counter++;
+          if (instruction_counter == 100)
+            instruction_counter = 0;
+          position = instruction_counter;
+        }
     }
-  else if (k == 4 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
+  else if (k == 4 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
     {
       error (source ());
       flag_RUN = 0;
@@ -413,71 +415,71 @@ analysis_k (enum keys k)
       operation = 0;
       position = 0;
       prev_position = 0;
-      flag_STEP = 0;
     }
-  else if (k == 5 && flag_F6 != -1 && flag_RUN && flag_STEP)
+  else if (k == 5 && flag_F6 != -1 && !flag_RUN)
     {
       if (flag_F5 == 1)
         {
           clear_position (position);
         }
       flag_F5 *= (-1);
-      instruction_counter++;
-      flag_STEP = 3;
     }
-  else if (k == 6 && flag_F5 != -1 && flag_RUN && flag_STEP)
+  else if (k == 6 && flag_F5 != -1 && !flag_RUN)
     {
       if (flag_F6 == 1)
         {
           clear_position (position);
         }
+      else
+        {
+          position = instruction_counter;
+        }
       flag_F6 *= (-1);
-      instruction_counter++;
-      flag_STEP = 4;
     }
-  else if (k == 7 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
+  else if (k == 7 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
     {
       if (position > 9)
         {
           position -= 10;
-          instruction_counter++;
         }
+      instruction_counter = position;
     }
-  else if (k == 8 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
+  else if (k == 8 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
     {
       if (position < 90)
         {
           position += 10;
-          instruction_counter++;
         }
+      instruction_counter = position;
     }
-  else if (k == 9 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
+  else if (k == 9 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
     {
       if (position % 10 != 0)
         {
           position -= 1;
-          instruction_counter++;
         }
+      instruction_counter = position;
     }
-  else if (k == 10 && flag_F5 != -1 && flag_F6 != -1 && flag_RUN)
+  else if (k == 10 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
     {
       if (position % 10 != 9)
         {
           position += 1;
-          instruction_counter++;
         }
+      instruction_counter = position;
     }
-  else if (k == 11 && flag_RUN && flag_STEP)
+  else if (k == 11 && !flag_RUN)
     {
       int value = 0;
-      mt_gotoXY (error_xy++ + 1, 0);
+      mt_gotoXY (24, 0);
+      printf ("%s", empty);
+      mt_gotoXY (24, 0);
       printf ("Введите значение: ");
       scanf ("%d", &value);
       if (value < 0)
-        {
-          value = value * (-1);
-          value = value | 0x4000;
-        }
+        value = ((-value) & 0x3fff) | 0x4000;
+      else
+        value = value & 0x3fff;
       if (flag_F5 == -1)
         {
           accumulator = value;
@@ -491,24 +493,11 @@ analysis_k (enum keys k)
       else
         {
           error (sc_memorySet (position, value));
-          flag_STEP--;
         }
-      instruction_counter++;
     }
   else
     {
       return -5;
-    }
-
-  if ((flag_STEP == 3 && flag_F5 == 1) || (flag_STEP == 4 && flag_F6 == 1))
-    {
-      flag_STEP = 1;
-    }
-
-  if (flag_STEP == 1)
-    {
-      flag_STEP = 0;
-      reboot ();
     }
 
   return 0;
@@ -523,7 +512,33 @@ print_all (void)
   print_operation ();
   print_flags ();
   print_big_accumulator ();
+  print_keys ();
   error (print_position ());
+
+  return 0;
+}
+
+int
+clear_space (void)
+{
+  for (int i = 25; i < ws.ws_row; i++)
+    {
+      mt_gotoXY (i, 0);
+      printf ("%s", empty);
+    }
+  mt_gotoXY (25, 0);
+  printf (": ");
+  return 0;
+}
+
+int
+print_bites (int key)
+{
+  for (int i = 31; i > 0; --i)
+    {
+      printf ("%d", (key >> (i - 1)) & 0x1);
+    }
+  printf ("\n");
 
   return 0;
 }
@@ -534,21 +549,32 @@ interface (void)
   setvbuf (stdout, NULL, _IONBF, 0);
   mt_clrscr ();
   error (rk_mytermsave ());
+  ioctl (0, TIOCGWINSZ, &ws);
+  if (ws.ws_row < 26 || ws.ws_col < 76)
+    {
+      printf ("Ошибка. Не хватает размера экрана.\n");
+      return -1;
+    }
 
-  print_keys ();
-  mt_gotoXY (error_xy + 1, 0);
+  mt_gotoXY (24, 0);
 
   enum keys k;
   do
     {
       print_all ();
-      error (rk_readkey (&k));
-      error (analysis_k (k));
-      if (k == 2)
-        error (timer ());
+      clear_space ();
+      if (!flag_RUN)
+        {
+          error (rk_readkey (&k));
+          error (analysis_k (k));
+        }
+      else
+        {
+          usleep (100000);
+        }
     }
-  while (k != 12);
-  mt_gotoXY (error_xy + 1, 0);
+  while (1);
+  mt_gotoXY (25, 0);
 
   return 0;
 }
