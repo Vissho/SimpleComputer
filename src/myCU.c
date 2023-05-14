@@ -121,7 +121,7 @@ cu_write (int operand)
       printf ("-");
       temp &= 0x3fff;
     }
-  printf ("%.4d", temp);
+  printf ("%d", temp);
 
   return 0;
 }

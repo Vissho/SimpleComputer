@@ -366,7 +366,9 @@ print_position (void)
 int
 analysis_k (enum keys k)
 {
-  if (k == 0 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
+  int flag_T = 0;
+  sc_regGet(T, &flag_T);
+  if (k == 0 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN && !flag_T)
     {
       char str[200];
       mt_gotoXY (24, 0);
@@ -376,7 +378,7 @@ analysis_k (enum keys k)
       scanf ("%s", str);
       error (sc_memoryLoad (str));
     }
-  else if (k == 1 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
+  else if (k == 1 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN && !flag_T)
     {
       char str[200];
       mt_gotoXY (24, 0);
@@ -386,13 +388,13 @@ analysis_k (enum keys k)
       scanf ("%s", str);
       error (sc_memorySave (str));
     }
-  else if (k == 2 && flag_F5 != -1 && flag_F6 != -1)
+  else if (k == 2 && flag_F5 != -1 && flag_F6 != -1 && !flag_T)
     {
       flag_RUN = 1;
       sc_regSet (T, 1);
       error (timer ());
     }
-  else if (k == 3 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
+  else if (k == 3 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN && !flag_T)
     {
       instruction_counter_old = instruction_counter;
       if (!CU ())
@@ -404,9 +406,11 @@ analysis_k (enum keys k)
           position = instruction_counter;
         }
     }
-  else if (k == 4 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
+  else if (k == 4 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN && !flag_T)
     {
       error (source ());
+      mt_gotoXY (24, 0);
+      printf ("%s", empty);
       flag_RUN = 0;
       sc_regInit ();
       sc_memoryInit ();
@@ -416,7 +420,7 @@ analysis_k (enum keys k)
       position = 0;
       prev_position = 0;
     }
-  else if (k == 5 && flag_F6 != -1 && !flag_RUN)
+  else if (k == 5 && flag_F6 != -1 && !flag_RUN && !flag_T)
     {
       if (flag_F5 == 1)
         {
@@ -424,7 +428,7 @@ analysis_k (enum keys k)
         }
       flag_F5 *= (-1);
     }
-  else if (k == 6 && flag_F5 != -1 && !flag_RUN)
+  else if (k == 6 && flag_F5 != -1 && !flag_RUN && !flag_T)
     {
       if (flag_F6 == 1)
         {
@@ -436,7 +440,7 @@ analysis_k (enum keys k)
         }
       flag_F6 *= (-1);
     }
-  else if (k == 7 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
+  else if (k == 7 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN && !flag_T)
     {
       if (position > 9)
         {
@@ -444,7 +448,7 @@ analysis_k (enum keys k)
         }
       instruction_counter = position;
     }
-  else if (k == 8 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
+  else if (k == 8 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN && !flag_T)
     {
       if (position < 90)
         {
@@ -452,7 +456,7 @@ analysis_k (enum keys k)
         }
       instruction_counter = position;
     }
-  else if (k == 9 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
+  else if (k == 9 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN && !flag_T)
     {
       if (position % 10 != 0)
         {
@@ -460,7 +464,7 @@ analysis_k (enum keys k)
         }
       instruction_counter = position;
     }
-  else if (k == 10 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN)
+  else if (k == 10 && flag_F5 != -1 && flag_F6 != -1 && !flag_RUN && !flag_T)
     {
       if (position % 10 != 9)
         {
@@ -468,7 +472,7 @@ analysis_k (enum keys k)
         }
       instruction_counter = position;
     }
-  else if (k == 11 && !flag_RUN)
+  else if (k == 11 && !flag_RUN && !flag_T)
     {
       int value = 0;
       mt_gotoXY (24, 0);

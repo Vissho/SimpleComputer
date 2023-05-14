@@ -141,30 +141,14 @@ sc_regGet (int Register, int *value)
 int
 sc_commandEncode (int command, int operand, int *value)
 {
-  if ((CHECK_COMMAND) && operand >= 0 && operand < 128)
-    {
-      *value = 0 | (command << 7) | operand;
-    }
-  else
-    {
-      return -3;
-    }
-
+  *value = 0 | (command << 7) | operand;
   return 0;
 }
 
 int
 sc_commandDecode (int value, int *command, int *operand)
 {
-  if ((value >> 14) == 0)
-    {
-      *command = (value >> 7);
-      *operand = (value & 127);
-    }
-  else
-    {
-      return -5;
-    }
-
+  *command = (value >> 7);
+  *operand = (value & 127);
   return 0;
 }

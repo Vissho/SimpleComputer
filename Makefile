@@ -5,7 +5,7 @@ LIBS = -I include/ -I thirdparty/
 
 .PHONY: all
 
-all: mySimpleComputer.out test
+all: mySimpleComputer.out test sat.out sbt.out
 
 mySimpleComputer.out: src/main.c src/interface.c mySimpleComputer.a myTerm.a myBigChars.a myReadkey.a mySignal.a myCU.a myALU.a
 	$(CC) $(CFLAGS) $(LIBS) -o $@ -L. $^
@@ -38,6 +38,12 @@ myCU.a: src/myCU.c
 	$(CC) $(CFLAGS) $(LIBS) -c $^
 	ar r myCU.a myCU.o
 
+sat.out: src/sat.c mySimpleComputer.a
+	$(CC) $(CFLAGS) $(LIBS) -o $@ -L. $^ -lm
+
+sbt.out: src/sbt.c
+	$(CC) $(CFLAGS) $(LIBS) -o $@ -L. $^
+
 .PHONY: test
 test: mySimpleComputer_test.out myTerm_test.out myBigChars_test.out myReadkey_test.out mySignal_test.out
 
@@ -63,6 +69,7 @@ clean:
 	find . -type f -name "*.out" -exec rm -f {} \;
 	find . -type f -name "*.o" -exec rm -f {} \;
 	find . -type f -name "*.d" -exec rm -f {} \;
+	find . -type f -name "*.sa" -exec rm -f {} \;
 
 rebuild: clean all
 
