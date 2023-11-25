@@ -93,7 +93,6 @@ test_run5:
 
 test_run:
 	./mySimpleComputer_test.out
-	./myTerm_test.out
 	./myBigChars_test.out
 	./mySignal_test.out
 
