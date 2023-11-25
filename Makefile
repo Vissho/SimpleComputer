@@ -91,6 +91,12 @@ test_run4:
 test_run5:
 	./mySignal_test.out
 
+test_run:
+	./mySimpleComputer_test.out
+	./myTerm_test.out
+	./myBigChars_test.out
+	./mySignal_test.out
+
 memory_check:
 	valgrind --leak-check=full ./mySimpleComputer.out
 	valgrind --leak-check=full ./mySimpleComputer_test.out

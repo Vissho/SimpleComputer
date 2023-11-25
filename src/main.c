@@ -2,19 +2,17 @@
 #include <mySimpleComputer.h>
 #include <myTerm.h>
 
-int
-main ()
+int main()
 {
-  if (!isatty (0) || !isatty (1))
-    {
-      fprintf (stderr, "Ошибка открытия терминала.\n");
-      return -1;
+    if (!isatty(0) || !isatty(1)) {
+        fprintf(stderr, "Ошибка открытия терминала.\n");
+        return -1;
     }
 
-  sc_memoryInit ();
-  sc_regInit ();
+    sc_memoryInit();
+    sc_regInit();
 
-  interface ();
+    interface();
 
-  return 0;
+    return 0;
 }

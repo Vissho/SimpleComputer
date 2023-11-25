@@ -1,20 +1,19 @@
 #pragma once
 
-enum keys
-{
-  LOAD,
-  SAVE,
-  RUN,
-  STEP,
-  RESET,
-  F5,
-  F6,
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
-  ENTER,
-  OTHER
+enum keys {
+    LOAD,
+    SAVE,
+    RUN,
+    STEP,
+    RESET,
+    F5,
+    F6,
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    ENTER,
+    OTHER
 };
 
 #define F5_KEY "\E[15~"
@@ -27,7 +26,7 @@ enum keys
 
 extern struct termios tsaved;
 
-int rk_readkey (enum keys *k);
-int rk_mytermsave (void);
-int rk_mytermrestore (void);
-int rk_mytermregime (int regime, int vtime, int vmin, int echo, int sigint);
+int rk_readkey(enum keys* k);
+int rk_mytermsave(void);
+int rk_mytermrestore(void);
+int rk_mytermregime(int regime, int vtime, int vmin, int echo, int sigint);
